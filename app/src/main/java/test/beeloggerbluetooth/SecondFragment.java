@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -77,12 +78,14 @@ public class SecondFragment extends Fragment {
     private BluetoothDevice mmDevice;
     private UUID deviceUUID;
 
-    int debugInt = 0;
+    ProgressBar pb;
+    TextView pbText;
+    int lastArraySize;
 
     private interface MessageConstants {
-        public static final int MESSAGE_READ = 0;
-        public static final int MESSAGE_WRITE = 1;
-        public static final int MESSAGE_TOAST = 2;
+        int MESSAGE_READ = 0;
+        int MESSAGE_WRITE = 1;
+        //int MESSAGE_TOAST = 2;
 
         // ... (Add other message types here as needed.)
     }
@@ -116,10 +119,12 @@ public class SecondFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        textViewReceivedData = (TextView) requireActivity().findViewById(R.id.textView_ReceivedData);
+        textViewReceivedData = requireActivity().findViewById(R.id.textView_ReceivedData);
         textViewReceivedData.setMovementMethod(new ScrollingMovementMethod());
 
-        etSend = (EditText) requireActivity().findViewById(R.id.editText_SendToDevice);
+        etSend = requireActivity().findViewById(R.id.editText_SendToDevice);
+        pb = requireActivity().findViewById(R.id.progressBar);
+        pbText = requireActivity().findViewById(R.id.textView_Progressbar);
 
 
         binding.buttonSecond.setOnClickListener(view17 -> NavHostFragment.findNavController(SecondFragment.this)
@@ -166,7 +171,7 @@ public class SecondFragment extends Fragment {
         binding.btListBtDevices.setOnClickListener(view12 -> listBTDevices());
 
         pairedDevicesArrayAdapter = new ArrayAdapter<>(requireActivity(), R.layout.device_name);
-        ListView listView = (ListView) requireActivity().findViewById(R.id.ListBtDevices);
+        ListView listView = requireActivity().findViewById(R.id.ListBtDevices);
         listView.setAdapter(pairedDevicesArrayAdapter);
         listView.setOnItemClickListener((av, view1, i, l) -> {
             if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
@@ -422,6 +427,8 @@ public class SecondFragment extends Fragment {
                 mmSocket.connect();
                 binding.btConnect.setTextColor(Color.BLUE);
                 Log.d(TAG, "BT Connected! ");
+                Snackbar.make(requireActivity().findViewById(R.id.coordinatorLayout), "BT Connected!",
+                        Snackbar.LENGTH_SHORT).show();
 
             } catch (IOException connectException) {
                 // Unable to connect; close the socket and return.
@@ -431,6 +438,9 @@ public class SecondFragment extends Fragment {
                     Log.e(TAG, "Could not close the client socket", closeException);
                 }
                 Log.d(TAG, "BT Connection Failed! ");
+                Snackbar.make(requireActivity().findViewById(R.id.coordinatorLayout), "BT Connection Failed",
+                        Snackbar.LENGTH_SHORT).show();
+
                 binding.btConnect.setTextColor(Color.LTGRAY);
 
                 return;
@@ -500,7 +510,7 @@ public class SecondFragment extends Fragment {
                 try {
                     numBytes = mmInStream.read(buffer);
 
-                    Message readMsg = mHandler.obtainMessage(
+                    Message readMsg = messageHandler.obtainMessage(
                             MessageConstants.MESSAGE_READ, numBytes, -1,
                             buffer);
                     readMsg.sendToTarget();
@@ -518,6 +528,12 @@ public class SecondFragment extends Fragment {
                 Log.d(TAG, "write: Writing to outputstream: " + text);
                 try {
                     mmOutStream.write(bytes);
+                    if (!progressBarHandler.hasCallbacks(runnableProgressBar)){
+                        progressBarHandler.post(runnableProgressBar);
+                        lastArraySize = -1;
+                        pb.setVisibility(View.VISIBLE);
+                    }
+
                 } catch (IOException e) {
                     Log.e(TAG, "Error writing Outputstream" + e.getMessage());
                 }
@@ -545,11 +561,44 @@ public class SecondFragment extends Fragment {
 
     public void write(byte[] out) {
 
-        mConnectedThread.write(out);
+        if (mConnectedThread != null) {
+            mConnectedThread.write(out);
+        }
+    }
+
+
+    private final Handler progressBarHandler = new Handler(Looper.getMainLooper()) {};
+
+    private final Runnable runnableProgressBar = new Runnable() {
+        @Override
+        public void run() {
+
+            pb.setVisibility(View.VISIBLE);
+            if (readMessagesList.size() - lastArraySize == 0)
+            {
+                textViewReceivedData.setText("");
+                for (String rm:readMessagesList) {
+                    textViewReceivedData.append(rm);
+                }
+
+                stopProgressBar();
+            } else {
+                lastArraySize = readMessagesList.size();
+                pbText.setText(String.valueOf(readMessagesList.size()));
+                progressBarHandler.postDelayed(this, 2000);
+            }
+        }
+    };
+
+    private void stopProgressBar(){
+
+        pbText.setText("");
+        pb.setVisibility(View.GONE);
+        progressBarHandler.removeCallbacks(runnableProgressBar);
 
     }
 
-    private final Handler mHandler = new Handler(Looper.getMainLooper()) {
+    private final Handler messageHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
@@ -567,12 +616,6 @@ public class SecondFragment extends Fragment {
                     if(readMessage.contains("\n")) {
 
                         readMessagesList.add(readMessageBuffer.concat(readMessage));
-                        debugInt ++;
-                        Log.d(TAG, "Receivcounter: " + debugInt);
-
-                        //String temp = textViewReceivedData.getText().toString();
-                        //temp += "Received: " + readMessageBuffer.concat(readMessage) + '\n';
-                        //textViewReceivedData.setText(temp);
 
                         readMessageBuffer = "";
 
