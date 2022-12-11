@@ -23,7 +23,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -36,16 +35,27 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.fragment.NavHostFragment;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +68,10 @@ import test.beeloggerbluetooth.databinding.FragmentSecondBinding;
 
 public class SecondFragment extends Fragment {
 
+    private BufferedReader dataInputStream;
+    private PrintWriter dataOutputStream;
+    private Socket socket;
+
     private FragmentSecondBinding binding;
     private BluetoothAdapter BA;
     private TextView textViewReceivedData;
@@ -67,30 +81,36 @@ public class SecondFragment extends Fragment {
     private String readMessageBuffer;
     private final static String TAG = "BTConnectServ";
     private final static String appName = "beeloggerBluetooth";
-    //private static final UUID UUIDString = UUID.fromString("00001101-0000-1000-8000-0800200c9a66");
+    //private static final UUID UUIDString = UUID.fromString("00001101-0000-1000-8000-0800200c9a66");  //geht nicht
     private static final UUID UUIDString = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); // meine alte app
 
-    private EditText etSend;
+    private TextView etFilename;
 
     private AcceptThread mAcceptThread;
     private ConnectThread mConnectThread;
     private ConnectedThread mConnectedThread;
     private BluetoothDevice mmDevice;
     private UUID deviceUUID;
+    boolean inProgress;
 
     ProgressBar pb;
     TextView pbText;
     int lastArraySize;
+    String filename;
+    String currentData;
 
     private interface MessageConstants {
         int MESSAGE_READ = 0;
         int MESSAGE_WRITE = 1;
-        //int MESSAGE_TOAST = 2;
+        int MESSAGE_TOAST = 2;
+        int RESPONSE_MESSAGE = 3;
 
         // ... (Add other message types here as needed.)
     }
 
     String url1 = "https://community.beelogger.de/Mauchel1/scraper.php?pfad=beeloggerD1_1"; //beeloggerD1_2 beeloggerD2_1 beeloggerD2_2
+    String url2 = "http://community.beelogger.de/Mauchel1/Duo2/beelogger_log.php?PW=LogPW&Z=2&A=1&ID=WLAN_M_220924&M2_Data=2022/12/11_21:27:53,22.3,,,22.1,,,52.4,,-0.03,4.18,8.31,0.63,0.00,,,26.75"; //beeloggerD1_2 beeloggerD2_1 beeloggerD2_2
+    String host = "community.beelogger.de";
 
     @Override
     public View onCreateView(
@@ -105,13 +125,16 @@ public class SecondFragment extends Fragment {
             // Device doesn't support Bluetooth
         }
 
+        inProgress = false;
         readMessageBuffer = "";
+        filename = "";
         readMessagesList = new ArrayList<>();
         mBTDevices = new ArrayList<>();
         binding = FragmentSecondBinding.inflate(inflater, container, false);
 
         MyReceiver myReceiver = new MyReceiver();
         requireActivity().registerReceiver(myReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
+        requireActivity().registerReceiver(myReceiver, new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED));
 
         return binding.getRoot();
     }
@@ -122,15 +145,14 @@ public class SecondFragment extends Fragment {
         textViewReceivedData = requireActivity().findViewById(R.id.textView_ReceivedData);
         textViewReceivedData.setMovementMethod(new ScrollingMovementMethod());
 
-        etSend = requireActivity().findViewById(R.id.editText_SendToDevice);
+        etFilename = requireActivity().findViewById(R.id.etFilename);
         pb = requireActivity().findViewById(R.id.progressBar);
         pbText = requireActivity().findViewById(R.id.textView_Progressbar);
 
 
-        binding.buttonSecond.setOnClickListener(view17 -> NavHostFragment.findNavController(SecondFragment.this)
-                .navigate(R.id.action_SecondFragment_to_FirstFragment));
+        //binding.buttonSecond.setOnClickListener(view17 -> NavHostFragment.findNavController(SecondFragment.this).navigate(R.id.action_SecondFragment_to_FirstFragment));
 
-        binding.btConnect.setOnClickListener(view16 -> {
+        binding.btConnect.setOnClickListener(view16 -> { //TODO if connected --> disconnect
 
             if (mmDevice != null) {
 
@@ -147,6 +169,45 @@ public class SecondFragment extends Fragment {
             }
         });
 
+
+        binding.buttonUploadData.setOnClickListener(view1 ->
+        {
+            //new SocketSetup().start(); //TODO welches geht?
+            new HttpThread().start();
+        });
+
+        binding.buttonSave.setOnClickListener(view1 -> {
+            if (readMessagesList.size() > 1) {
+
+                if (filename.contains(".csv") && !readMessagesList.get(0).contains(".csv")) { //TODO zweiter teil so richtig? kommt als 0tes element der dateiname beim senden von #?
+
+
+                    File path = requireActivity().getFilesDir();
+                    //filename = "testfile.csv";
+                    File filepath = new File(path + filename);
+
+
+                    if (!filepath.exists()) {
+
+                        try {
+                            FileOutputStream outStream = new FileOutputStream(new File(path, filename));
+                            for (String item : readMessagesList) {
+                                outStream.write(item.getBytes());
+                            }
+                            outStream.close();
+                            messageHandler.obtainMessage(MessageConstants.MESSAGE_TOAST, "Data saved in File: " + filepath).sendToTarget();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        messageHandler.obtainMessage(MessageConstants.MESSAGE_TOAST, "File already exists: " + filepath).sendToTarget(); //TODO Kommt nicht
+                    }
+                } else {
+                    messageHandler.obtainMessage(MessageConstants.MESSAGE_TOAST, "No Data to save").sendToTarget();
+                }
+            }
+        });
+
         binding.btGetLastTime.setOnClickListener(view15 -> getWebsiteData());
 
         binding.btBT.setOnClickListener(view14 -> {
@@ -157,16 +218,11 @@ public class SecondFragment extends Fragment {
             }
         });
 
-        binding.btSend.setOnClickListener(view13 -> {
-            byte[] bytes = etSend.getText().toString().getBytes(Charset.defaultCharset());
-
-            write(bytes);
-
-            String temp = textViewReceivedData.getText().toString();
-            temp += "Send: " + etSend.getText().toString();
-            temp += '\n';
-            textViewReceivedData.setText(temp);
+        binding.btSendFn.setOnClickListener(view1 -> sendToBTDevice("#"));
+        binding.btSendData.setOnClickListener(view1 -> {
+            sendToBTDevice("?");
         });
+        binding.btSendNf.setOnClickListener(view1 -> sendToBTDevice("*"));
 
         binding.btListBtDevices.setOnClickListener(view12 -> listBTDevices());
 
@@ -204,6 +260,21 @@ public class SecondFragment extends Fragment {
 
     }
 
+    private void sendToBTDevice(String data) {
+        if (!inProgress) {
+            readMessagesList.clear();
+
+            write(data.getBytes(Charset.defaultCharset()));
+
+            /*
+            String temp = ""; //textViewReceivedData.getText().toString();
+            temp += "Send: " + etFilename.getText().toString();
+            temp += '\n';
+            textViewReceivedData.setText(temp);
+            */
+        }
+    }
+
     private void getWebsiteData() {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Handler handler = new Handler(Looper.getMainLooper());
@@ -239,6 +310,120 @@ public class SecondFragment extends Fragment {
         }
     }
 
+
+    private void httpStringRequest() {
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url2,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d(TAG, response);
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d(TAG, error.toString());
+
+                    }
+                }) {
+            /*@Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("data", s);
+                return params;
+            }*/
+        };
+        RequestQueue requestQueue = Volley.newRequestQueue(requireActivity());
+        requestQueue.add(stringRequest);
+    }
+
+    /*private void httpGetRequest() {
+
+        // GET /Mauchel1/Duo2/beelogger_log.php?PW=LogPW&Z=2&A=1&ID=WLAN_M_220924&M2_Data=2022/11/27_21:27:53,22.3,,,22.1,,,52.4,,-0.03,4.18,8.31,0.63,0.00,,,26.752022/11/27_21:27:53,22.3,,,22.1,,,52.4,,-0.03,4.18,8.31,0.63,0.00,,,26.75
+
+        try {
+            URL url = new URL("http://community.beelogger.de");
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            try {
+                urlConnection.setDoInput(true);
+                int responseCode = urlConnection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    InputStream inStream = new BufferedInputStream(urlConnection.getInputStream());
+                    InputStreamReader inReader = new InputStreamReader(inStream);
+                    //InputStream in = url.openStream();
+                    OutputStream outStream = new BufferedOutputStream(urlConnection.getOutputStream());
+                    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outStream);
+                    outputStreamWriter.write("GET /Mauchel1/Duo2/beelogger_log.php?");
+                    outputStreamWriter.flush();
+                    outputStreamWriter.close();
+
+                    BufferedReader reader = new BufferedReader(inReader);
+                    StringBuilder result = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        result.append(line);
+                    }
+                    Log.d(TAG, result.toString());
+                } else {
+                    Log.e(TAG, "Fail (" + responseCode + ")");
+                }
+*/
+            /*try {
+                InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                InputStream errin = new BufferedInputStream(urlConnection.getErrorStream());
+                //readStream(in);
+            }*/
+/*
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                urlConnection.disconnect();
+            }
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+*/
+/*
+    private int ConnectSocket() {
+        try {
+            socket = new Socket(host, 80);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (socket.isConnected()) {
+            Log.d(TAG, "Socket connected to " + host);
+            return 1;
+        }//TODO retry connect x times
+        else {
+            return -1;
+        }
+    }
+
+    private void SocketOperations() {
+
+        try {
+            dataOutputStream = new PrintWriter(socket.getOutputStream());
+
+            //dataOutputStream = new DataOutputStream( new BufferedOutputStream( socket.getOutputStream() ) );
+
+            //dataOutputStream.write("GET /Mauchel1/Duo2/beelogger_log.php?"); //TODO hardcoded string
+            //dataOutputStream.flush();
+            dataOutputStream.write("http://community.beelogger.de/Mauchel1/Duo2/beelogger_log.php?PW=LogPW&Z=2&A=1&ID=WLAN_M_220924&M2_Data=2022/12/03_21:40:08,22.3,,,22.1,,,52.5,,-0.04,4.17,8.33,0.23,18.00,,,22.50"); //TODO hardcoded string
+            //dataOutputStream.write("GET /Mauchel1/Duo2/beelogger_log.php?PW=LogPW&Z=2&A=1&ID=WLAN_M_220924&M2_Data=2022/12/03_21:40:08,22.3,,,22.1,,,52.5,,-0.04,4.17,8.33,0.23,18.00,,,22.50"); //TODO hardcoded string
+            dataOutputStream.flush();
+            //dataOutputStream.write(" HTTP/1.1"); //TODO hardcoded string
+            //dataOutputStream.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+    */
 
     @Override
     public void onDestroyView() {
@@ -336,6 +521,13 @@ public class SecondFragment extends Fragment {
                     binding.btBT.setTextColor(Color.BLUE);
                 }
             }
+            if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
+                if (intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, -1) == BluetoothAdapter.STATE_OFF) {
+                    binding.btBT.setTextColor(Color.LTGRAY);
+                } else if (intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, -1) == BluetoothAdapter.STATE_ON) {
+                    binding.btBT.setTextColor(Color.BLUE);
+                }
+            }
         }
     }
 
@@ -409,7 +601,7 @@ public class SecondFragment extends Fragment {
                 if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                     requestPermissionLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT);
                 }
-                tmp = mmDevice.createInsecureRfcommSocketToServiceRecord(deviceUUID);
+                tmp = mmDevice.createRfcommSocketToServiceRecord(deviceUUID);
             } catch (IOException e) {
                 Log.e(TAG, "Socket's create() method failed", e);
             }
@@ -498,6 +690,13 @@ public class SecondFragment extends Fragment {
 
             mmInStream = tmpIn;
             mmOutStream = tmpOut;
+
+            try { //TODO was das?
+                mmOutStream.flush();
+            } catch (IOException e) {
+                return;
+            }
+
             readMessagesList.clear();
         }
 
@@ -505,15 +704,24 @@ public class SecondFragment extends Fragment {
             byte[] buffer = new byte[1024];
 
             int numBytes; // bytes returned from read()
-
+            BufferedReader br;
+            br = new BufferedReader(new InputStreamReader(mmInStream));
             while (true) {
                 try {
-                    numBytes = mmInStream.read(buffer);
 
-                    Message readMsg = messageHandler.obtainMessage(
-                            MessageConstants.MESSAGE_READ, numBytes, -1,
-                            buffer);
-                    readMsg.sendToTarget();
+                    String resp = br.readLine();
+                    Message msg = new Message();
+                    msg.what = MessageConstants.RESPONSE_MESSAGE;
+                    msg.obj = resp;
+
+                    messageHandler.sendMessage(msg);
+
+                    //numBytes = mmInStream.read(buffer);
+
+                    //Message readMsg = messageHandler.obtainMessage(
+                    //        MessageConstants.MESSAGE_READ, numBytes, -1,
+                    //        buffer);
+                    //readMsg.sendToTarget();
 
                 } catch (IOException e) {
                     Log.e(TAG, "Error reading Inputstream" + e.getMessage());
@@ -528,10 +736,11 @@ public class SecondFragment extends Fragment {
                 Log.d(TAG, "write: Writing to outputstream: " + text);
                 try {
                     mmOutStream.write(bytes);
-                    if (!progressBarHandler.hasCallbacks(runnableProgressBar)){
+                    if (!progressBarHandler.hasCallbacks(runnableProgressBar)) {
                         progressBarHandler.post(runnableProgressBar);
                         lastArraySize = -1;
                         pb.setVisibility(View.VISIBLE);
+                        inProgress = true;
                     }
 
                 } catch (IOException e) {
@@ -573,11 +782,11 @@ public class SecondFragment extends Fragment {
         @Override
         public void run() {
 
+            inProgress = true;
             pb.setVisibility(View.VISIBLE);
-            if (readMessagesList.size() - lastArraySize == 0)
-            {
+            if (readMessagesList.size() - lastArraySize == 0) {
                 textViewReceivedData.setText("");
-                for (String rm:readMessagesList) {
+                for (String rm : readMessagesList) {
                     textViewReceivedData.append(rm);
                 }
 
@@ -585,17 +794,29 @@ public class SecondFragment extends Fragment {
             } else {
                 lastArraySize = readMessagesList.size();
                 pbText.setText(String.valueOf(readMessagesList.size()));
-                progressBarHandler.postDelayed(this, 2000);
+                progressBarHandler.postDelayed(this, 3000);
             }
         }
     };
 
-    private void stopProgressBar(){
+    private void stopProgressBar() {
 
         pbText.setText("");
+        inProgress = false;
         pb.setVisibility(View.GONE);
         progressBarHandler.removeCallbacks(runnableProgressBar);
 
+        postDataReceivedTasks();
+
+    }
+
+    private void postDataReceivedTasks() {
+        if (readMessagesList.get(0).contains(".csv")) { //TODO insecure!
+            filename = readMessagesList.get(0);
+            etFilename.setText(filename);
+            currentData = readMessagesList.get(1); //TODO insecure! size >= 2 und size < 3
+            readMessagesList.clear();
+        }
     }
 
     private final Handler messageHandler = new Handler(Looper.getMainLooper()) {
@@ -613,7 +834,7 @@ public class SecondFragment extends Fragment {
                     // construct a string from the valid bytes in the buffer
                     String readMessage = new String(readBuf, 0, msg.arg1);
 
-                    if(readMessage.contains("\n")) {
+                    if (readMessage.contains("\n")) {
 
                         readMessagesList.add(readMessageBuffer.concat(readMessage));
 
@@ -621,18 +842,72 @@ public class SecondFragment extends Fragment {
 
                     } else {
                         readMessageBuffer = readMessageBuffer.concat(readMessage);
-
-
-            }
-
-
-
+                    }
                     Log.d(TAG, "Input Stream: " + readMessage);
                     //mConversationArrayAdapter.add(readMessage);
+                    break;
+                case MessageConstants.MESSAGE_TOAST:
+                    Toast.makeText(requireActivity().getApplicationContext(), msg.obj.toString(), Toast.LENGTH_SHORT).show();
                     break;
             }
         }
     };
+
+    /*private class SocketSetup extends Thread {
+
+        public void run() {
+            if (ConnectSocket() > 0) {
+                new SocketReceiver().start();
+                new SocketSender().start();
+            }
+        }
+    }
+
+    private class SocketReceiver extends Thread {
+
+        public void run() {
+            try {
+                dataInputStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            while (socket.isConnected()) {
+
+                try {
+                    int messageInt = dataInputStream.read();
+                    //String message = String.valueOf(dataInputStream.read());
+
+                    if (messageInt >= 0) { //null){
+                        Log.d(TAG, "Received from Server: " + String.valueOf(messageInt));
+
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
+    }
+
+    private class SocketSender extends Thread {
+
+        public void run() {
+            SocketOperations();
+
+
+        }
+    }
+     */
+
+    private class HttpThread extends Thread {
+
+        public void run() {
+            httpStringRequest();
+            //httpGetRequest();
+        }
+    }
+
 
 }
 

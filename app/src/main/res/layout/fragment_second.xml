@@ -7,17 +7,6 @@
     tools:context=".SecondFragment">
 
     <Button
-        android:id="@+id/button_second"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/previous"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ListBtDevices" />
-
-    <Button
         android:id="@+id/bt_ListBtDevices"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -41,15 +30,6 @@
         app:layout_constraintTop_toBottomOf="@+id/bt_ListBtDevices" />
 
     <Button
-        android:id="@+id/bt_getLastTime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:text="Scraper"
-        app:layout_constraintEnd_toStartOf="@+id/button_second"
-        app:layout_constraintTop_toTopOf="@+id/button_second" />
-
-    <Button
         android:id="@+id/bt_BT"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -59,33 +39,20 @@
         app:layout_constraintStart_toEndOf="@+id/bt_ListBtDevices"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
-        android:id="@+id/editText_SendToDevice"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:ems="10"
-        android:hint="Text to send "
-        android:inputType="textPersonName"
-        android:minHeight="48dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/bt_Send"
-        app:layout_constraintTop_toTopOf="@+id/bt_Send" />
-
     <Button
-        android:id="@+id/bt_Send"
+        android:id="@+id/bt_Send_fn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="Send"
+        android:text="get Filename"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/bt_getLastTime" />
+        app:layout_constraintTop_toBottomOf="@+id/btGetLastTime" />
 
     <TextView
         android:id="@+id/textView_ReceivedData"
         android:layout_width="0dp"
-        android:layout_height="117dp"
+        android:layout_height="200dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
@@ -93,7 +60,7 @@
         android:textIsSelectable="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText_SendToDevice" />
+        app:layout_constraintTop_toBottomOf="@+id/bt_Send_fn" />
 
     <Button
         android:id="@+id/bt_Connect"
@@ -125,5 +92,70 @@
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="@+id/progressBar"
         app:layout_constraintEnd_toStartOf="@+id/progressBar" />
+
+    <Button
+        android:id="@+id/button_save"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Save"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView_ReceivedData" />
+
+    <Button
+        android:id="@+id/bt_Send_data"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Data"
+        app:layout_constraintStart_toEndOf="@+id/bt_Send_fn"
+        app:layout_constraintTop_toTopOf="@+id/bt_Send_fn" />
+
+    <Button
+        android:id="@+id/bt_Send_nf"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="New File"
+        app:layout_constraintStart_toEndOf="@+id/bt_Send_data"
+        app:layout_constraintTop_toTopOf="@+id/bt_Send_data" />
+
+    <TextView
+        android:id="@+id/etFilename"
+        android:layout_width="115dp"
+        android:layout_height="29dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="Filename:"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ListBtDevices" />
+
+    <Button
+        android:id="@+id/btGetLastTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Get Website Time"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ListBtDevices" />
+
+    <Button
+        android:id="@+id/button_uploadData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="upload"
+        app:layout_constraintStart_toEndOf="@+id/btGetLastTime"
+        app:layout_constraintTop_toTopOf="@+id/btGetLastTime" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
