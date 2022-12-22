@@ -11,6 +11,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -285,8 +286,9 @@ public class SecondFragment extends Fragment {
             String data = "";
             //Background work here
             try {
-                Document document = Jsoup.connect(url1).get();
-                data = document.select(".beeloggerD1_1_Sensor_Aktualisierung").text();
+                SharedPreferences prefs = requireContext().getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+                Document document = Jsoup.connect(prefs.getString("ScraperCoreUrl", requireActivity().getResources().getString(R.string.defaultScraperUrl))).get(); //TODO change default
+                data = document.select(prefs.getString("ScraperSelect", requireActivity().getResources().getString(R.string.ScraperSelect))).text();
             } catch (IOException e) {
                 e.printStackTrace();
             }

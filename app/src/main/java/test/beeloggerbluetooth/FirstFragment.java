@@ -1,5 +1,7 @@
 package test.beeloggerbluetooth;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,6 +34,15 @@ public class FirstFragment extends Fragment {
         binding.buttonFirst.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                //Save Setting Values
+                SharedPreferences prefs = requireActivity().getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putString("ScraperCoreUrl","https://community.beelogger.de/Mauchel1/scraper.php?pfad=beeloggerD1_1" );
+                editor.putString("ScraperSelect", ".beeloggerD1_1_Sensor_Aktualisierung");
+
+                editor.apply();
+
                 NavHostFragment.findNavController(FirstFragment.this)
                         .navigate(R.id.action_FirstFragment_to_SecondFragment);
             }
