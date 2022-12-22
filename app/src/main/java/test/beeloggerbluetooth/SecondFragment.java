@@ -80,7 +80,7 @@ public class SecondFragment extends Fragment {
     private ArrayAdapter<String> pairedDevicesArrayAdapter;
     private List<String> readMessagesList;
     private String readMessageBuffer;
-    private final static String TAG = "BTConnectServ";
+    private final static String TAG = "Beelogger SecondFragment";
     private final static String appName = "beeloggerBluetooth";
     //private static final UUID UUIDString = UUID.fromString("00001101-0000-1000-8000-0800200c9a66");  //geht nicht
     private static final UUID UUIDString = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); // meine alte app
@@ -110,7 +110,6 @@ public class SecondFragment extends Fragment {
     }
 
     String url1 = "https://community.beelogger.de/Mauchel1/scraper.php?pfad=beeloggerD1_1"; //beeloggerD1_2 beeloggerD2_1 beeloggerD2_2
-    String url2 = "http://community.beelogger.de/Mauchel1/Duo2/beelogger_log.php?PW=LogPW&Z=2&A=1&ID=WLAN_M_220924&M2_Data=2022/12/11_21:27:53,22.3,,,22.1,,,52.4,,-0.03,4.18,8.31,0.63,0.00,,,26.75"; //beeloggerD1_2 beeloggerD2_1 beeloggerD2_2
     String host = "community.beelogger.de";
 
     @Override
@@ -133,7 +132,7 @@ public class SecondFragment extends Fragment {
         mBTDevices = new ArrayList<>();
         binding = FragmentSecondBinding.inflate(inflater, container, false);
 
-        MyReceiver myReceiver = new MyReceiver();
+        MyReceiver myReceiver = new MyReceiver(binding);
         requireActivity().registerReceiver(myReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
         requireActivity().registerReceiver(myReceiver, new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED));
 
@@ -174,7 +173,7 @@ public class SecondFragment extends Fragment {
         binding.buttonUploadData.setOnClickListener(view1 ->
         {
             //new SocketSetup().start(); //TODO welches geht?
-            new HttpThread().start();
+            new HttpThread(requireActivity()).start();
         });
 
         binding.buttonSave.setOnClickListener(view1 -> {
@@ -313,83 +312,9 @@ public class SecondFragment extends Fragment {
     }
 
 
-    private void httpStringRequest() {
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url2,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Log.d(TAG, response);
-
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.d(TAG, error.toString());
-
-                    }
-                }) {
-            /*@Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("data", s);
-                return params;
-            }*/
-        };
-        RequestQueue requestQueue = Volley.newRequestQueue(requireActivity());
-        requestQueue.add(stringRequest);
-    }
-
-    /*private void httpGetRequest() {
-
-        // GET /Mauchel1/Duo2/beelogger_log.php?PW=LogPW&Z=2&A=1&ID=WLAN_M_220924&M2_Data=2022/11/27_21:27:53,22.3,,,22.1,,,52.4,,-0.03,4.18,8.31,0.63,0.00,,,26.752022/11/27_21:27:53,22.3,,,22.1,,,52.4,,-0.03,4.18,8.31,0.63,0.00,,,26.75
-
-        try {
-            URL url = new URL("http://community.beelogger.de");
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            try {
-                urlConnection.setDoInput(true);
-                int responseCode = urlConnection.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    InputStream inStream = new BufferedInputStream(urlConnection.getInputStream());
-                    InputStreamReader inReader = new InputStreamReader(inStream);
-                    //InputStream in = url.openStream();
-                    OutputStream outStream = new BufferedOutputStream(urlConnection.getOutputStream());
-                    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outStream);
-                    outputStreamWriter.write("GET /Mauchel1/Duo2/beelogger_log.php?");
-                    outputStreamWriter.flush();
-                    outputStreamWriter.close();
-
-                    BufferedReader reader = new BufferedReader(inReader);
-                    StringBuilder result = new StringBuilder();
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        result.append(line);
-                    }
-                    Log.d(TAG, result.toString());
-                } else {
-                    Log.e(TAG, "Fail (" + responseCode + ")");
-                }
-*/
-            /*try {
-                InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-                InputStream errin = new BufferedInputStream(urlConnection.getErrorStream());
-                //readStream(in);
-            }*/
-/*
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                urlConnection.disconnect();
-            }
 
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
-    }
-*/
 /*
     private int ConnectSocket() {
         try {
@@ -451,7 +376,6 @@ public class SecondFragment extends Fragment {
     private void enableBT() {
         Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         getResult.launch(enableBtIntent);
-
     }
 
     private void disableBT() {
@@ -459,7 +383,6 @@ public class SecondFragment extends Fragment {
             requestPermissionLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT);
         }
         BA.disable();
-
     }
 
     private void listBTDevices() {
@@ -507,31 +430,6 @@ public class SecondFragment extends Fragment {
                     // decision.
                 }
             });
-
-    public class MyReceiver extends BroadcastReceiver {
-        public MyReceiver() {
-        }
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-
-            if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
-                if (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1) == BluetoothAdapter.STATE_OFF) {
-                    binding.btBT.setTextColor(Color.LTGRAY);
-                } else if (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1) == BluetoothAdapter.STATE_ON) {
-                    binding.btBT.setTextColor(Color.BLUE);
-                }
-            }
-            if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
-                if (intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, -1) == BluetoothAdapter.STATE_OFF) {
-                    binding.btBT.setTextColor(Color.LTGRAY);
-                } else if (intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, -1) == BluetoothAdapter.STATE_ON) {
-                    binding.btBT.setTextColor(Color.BLUE);
-                }
-            }
-        }
-    }
 
     private class AcceptThread extends Thread {
 
@@ -809,7 +707,6 @@ public class SecondFragment extends Fragment {
         progressBarHandler.removeCallbacks(runnableProgressBar);
 
         postDataReceivedTasks();
-
     }
 
     private void postDataReceivedTasks() {
@@ -901,14 +798,6 @@ public class SecondFragment extends Fragment {
         }
     }
      */
-
-    private class HttpThread extends Thread {
-
-        public void run() {
-            httpStringRequest();
-            //httpGetRequest();
-        }
-    }
 
 
 }
