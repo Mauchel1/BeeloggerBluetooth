@@ -179,13 +179,10 @@ public class SecondFragment extends Fragment {
         binding.buttonSave.setOnClickListener(view1 -> {
             if (readMessagesList.size() > 1) {
 
-                if (filename.contains(".csv") && !readMessagesList.get(0).contains(".csv")) { //TODO zweiter teil so richtig? kommt als 0tes element der dateiname beim senden von #?
-
+                if (filename.endsWith(".csv") && !readMessagesList.get(0).contains(".csv")) {
 
                     File path = requireActivity().getFilesDir();
-                    //filename = "testfile.csv";
                     File filepath = new File(path + filename);
-
 
                     if (!filepath.exists()) {
 
@@ -591,8 +588,10 @@ public class SecondFragment extends Fragment {
             mmInStream = tmpIn;
             mmOutStream = tmpOut;
 
-            try { //TODO was das?
-                mmOutStream.flush();
+            try { 
+                if (mmOutStream != null) {
+                    mmOutStream.flush();
+                }
             } catch (IOException e) {
                 return;
             }
@@ -610,6 +609,8 @@ public class SecondFragment extends Fragment {
                 try {
 
                     String resp = br.readLine();
+                    Log.d(TAG, "Received: " + resp);
+
                     Message msg = new Message();
                     msg.what = MessageConstants.RESPONSE_MESSAGE;
                     msg.obj = resp;
@@ -710,8 +711,8 @@ public class SecondFragment extends Fragment {
     }
 
     private void postDataReceivedTasks() {
-        if (readMessagesList.get(0).contains(".csv")) { //TODO insecure!
-            filename = readMessagesList.get(0);
+        if (readMessagesList != null && readMessagesList.size() > 0 && readMessagesList.get(0).contains(".csv")) { //TODO insecure!
+            filename = readMessagesList.get(0).split(".csv")[0].concat(".csv");
             etFilename.setText(filename);
             currentData = readMessagesList.get(1); //TODO insecure! size >= 2 und size < 3
             readMessagesList.clear();
@@ -744,6 +745,9 @@ public class SecondFragment extends Fragment {
                     }
                     Log.d(TAG, "Input Stream: " + readMessage);
                     //mConversationArrayAdapter.add(readMessage);
+                    break;
+                case MessageConstants.RESPONSE_MESSAGE:
+                    readMessagesList.add(msg.obj.toString() + '\n');
                     break;
                 case MessageConstants.MESSAGE_TOAST:
                     Toast.makeText(requireActivity().getApplicationContext(), msg.obj.toString(), Toast.LENGTH_SHORT).show();
