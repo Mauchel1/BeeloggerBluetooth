@@ -28,8 +28,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -48,8 +46,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.net.Socket;
 import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -66,9 +62,6 @@ import test.beeloggerbluetooth.databinding.FragmentSecondBinding;
 
 public class SecondFragment extends Fragment {
 
-    private BufferedReader dataInputStream;
-    private PrintWriter dataOutputStream;
-    private Socket socket;
 
     private FragmentSecondBinding binding;
     private BluetoothAdapter BA;
@@ -76,10 +69,8 @@ public class SecondFragment extends Fragment {
     private ArrayList<BluetoothDevice> mBTDevices = new ArrayList<>();
     private ArrayAdapter<String> pairedDevicesArrayAdapter;
     private List<String> readMessagesList;
-    private String readMessageBuffer;
     private final static String TAG = "Beelogger SecondFragment";
     private final static String appName = "beeloggerBluetooth";
-    //private static final UUID UUIDString = UUID.fromString("00001101-0000-1000-8000-0800200c9a66");  //geht nicht
     private static final UUID UUIDString = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); // meine alte app
 
     private TextView etFilename;
@@ -107,9 +98,6 @@ public class SecondFragment extends Fragment {
         // ... (Add other message types here as needed.)
     }
 
-    String url1 = "https://community.beelogger.de/Mauchel1/scraper.php?pfad=beeloggerD1_1"; //beeloggerD1_2 beeloggerD2_1 beeloggerD2_2
-    String host = "community.beelogger.de";
-
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater, ViewGroup container,
@@ -127,7 +115,6 @@ public class SecondFragment extends Fragment {
 
         lastUploadTime = null;
         inProgress = false;
-        readMessageBuffer = "";
         filename = "";
         readMessagesList = new ArrayList<>();
         mBTDevices = new ArrayList<>();
@@ -173,7 +160,6 @@ public class SecondFragment extends Fragment {
 
         binding.buttonUploadData.setOnClickListener(view1 ->
         {
-            //new SocketSetup().start(); //TODO welches geht?
             int index = getIndexOfFirstListelementToSend();
             new HttpThread(requireActivity(), index, readMessagesList).start();
         });
@@ -218,9 +204,7 @@ public class SecondFragment extends Fragment {
         });
 
         binding.btSendFn.setOnClickListener(view1 -> sendToBTDevice("#"));
-        binding.btSendData.setOnClickListener(view1 -> {
-            sendToBTDevice("?");
-        });
+        binding.btSendData.setOnClickListener(view1 -> sendToBTDevice("?"));
         binding.btSendNf.setOnClickListener(view1 -> sendToBTDevice("*"));
 
         binding.btListBtDevices.setOnClickListener(view12 -> listBTDevices());
@@ -264,28 +248,21 @@ public class SecondFragment extends Fragment {
             readMessagesList.clear();
 
             write(data.getBytes(Charset.defaultCharset()));
-
-            /*
-            String temp = ""; //textViewReceivedData.getText().toString();
-            temp += "Send: " + etFilename.getText().toString();
-            temp += '\n';
-            textViewReceivedData.setText(temp);
-            */
         }
     }
 
-    private int getIndexOfFirstListelementToSend(){
+    private int getIndexOfFirstListelementToSend() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss", Locale.GERMAN);
         LocalDateTime _time;
         int i;
-        for (i = 0; i < readMessagesList.size(); i++){
+        for (i = 0; i < readMessagesList.size(); i++) {
 
             try {
-                _time = LocalDateTime.parse(readMessagesList.get(i).split(",")[0], formatter); //TODO check if correct
-                if (_time.isAfter(lastUploadTime)){
+                _time = LocalDateTime.parse(readMessagesList.get(i).split(",")[0], formatter);
+                if (_time.isAfter(lastUploadTime)) {
                     return i;
                 }
-            }catch (DateTimeParseException e) {
+            } catch (DateTimeParseException e) {
                 e.printStackTrace();
             }
 
@@ -333,55 +310,13 @@ public class SecondFragment extends Fragment {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy - HH:mm:ss", Locale.GERMAN);
 
             try {
-                lastUploadTime = LocalDateTime.parse(data, formatter) ;
-            }catch (DateTimeParseException e){
+                lastUploadTime = LocalDateTime.parse(data, formatter);
+            } catch (DateTimeParseException e) {
                 Toast.makeText(requireActivity().getApplicationContext(), "data not parsed to date", Toast.LENGTH_SHORT).show();
                 e.printStackTrace();
             }
-
         }
     }
-
-
-
-
-
-/*
-    private int ConnectSocket() {
-        try {
-            socket = new Socket(host, 80);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (socket.isConnected()) {
-            Log.d(TAG, "Socket connected to " + host);
-            return 1;
-        }//TODO retry connect x times
-        else {
-            return -1;
-        }
-    }
-
-    private void SocketOperations() {
-
-        try {
-            dataOutputStream = new PrintWriter(socket.getOutputStream());
-
-            //dataOutputStream = new DataOutputStream( new BufferedOutputStream( socket.getOutputStream() ) );
-
-            //dataOutputStream.write("GET /Mauchel1/Duo2/beelogger_log.php?"); //TODO hardcoded string
-            //dataOutputStream.flush();
-            dataOutputStream.write("http://community.beelogger.de/Mauchel1/Duo2/beelogger_log.php?PW=LogPW&Z=2&A=1&ID=WLAN_M_220924&M2_Data=2022/12/03_21:40:08,22.3,,,22.1,,,52.5,,-0.04,4.17,8.33,0.23,18.00,,,22.50"); //TODO hardcoded string
-            //dataOutputStream.write("GET /Mauchel1/Duo2/beelogger_log.php?PW=LogPW&Z=2&A=1&ID=WLAN_M_220924&M2_Data=2022/12/03_21:40:08,22.3,,,22.1,,,52.5,,-0.04,4.17,8.33,0.23,18.00,,,22.50"); //TODO hardcoded string
-            dataOutputStream.flush();
-            //dataOutputStream.write(" HTTP/1.1"); //TODO hardcoded string
-            //dataOutputStream.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-    */
 
     @Override
     public void onDestroyView() {
@@ -390,16 +325,10 @@ public class SecondFragment extends Fragment {
     }
 
 
-    ActivityResultLauncher<Intent> getResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-        @Override
-        public void onActivityResult(ActivityResult result) {
-            if (result.getResultCode() == Activity.RESULT_OK) {
-                //val value = it.data?.getStringExtra("input")
-            } else {
-
-                Snackbar.make(requireActivity().findViewById(R.id.coordinatorLayout), "Please enable Bluetooth",
-                        Snackbar.LENGTH_SHORT).show();
-            }
+    ActivityResultLauncher<Intent> getResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+        if (result.getResultCode() != Activity.RESULT_OK) {
+            Snackbar.make(requireActivity().findViewById(R.id.coordinatorLayout), "Please enable Bluetooth",
+                    Snackbar.LENGTH_SHORT).show();
         }
     });
 
@@ -446,10 +375,7 @@ public class SecondFragment extends Fragment {
     // ActivityResultLauncher, as an instance variable.
     private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    //listBTDevices();
-                    // Permission is granted. Continue the action or workflow in your app
-                } else {
+                if (!isGranted) {
 
                     Snackbar.make(requireActivity().findViewById(R.id.coordinatorLayout), "Needed for pairing with Beelogger BT Device. ",
                             Snackbar.LENGTH_SHORT).show();
@@ -634,9 +560,9 @@ public class SecondFragment extends Fragment {
         }
 
         public void run() {
-            byte[] buffer = new byte[1024];
+            //byte[] buffer = new byte[1024];
 
-            int numBytes; // bytes returned from read()
+            //int numBytes; // bytes returned from read()
             BufferedReader br;
             br = new BufferedReader(new InputStreamReader(mmInStream));
             while (true) {
@@ -711,7 +637,8 @@ public class SecondFragment extends Fragment {
     }
 
 
-    private final Handler progressBarHandler = new Handler(Looper.getMainLooper()) {};
+    private final Handler progressBarHandler = new Handler(Looper.getMainLooper()) {
+    };
 
     private final Runnable runnableProgressBar = new Runnable() {
         @Override
@@ -759,7 +686,7 @@ public class SecondFragment extends Fragment {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case MessageConstants.MESSAGE_WRITE:
+                /*case MessageConstants.MESSAGE_WRITE:
                     byte[] writeBuf = (byte[]) msg.obj;
                     // construct a string from the buffer
                     String writeMessage = new String(writeBuf);
@@ -781,7 +708,7 @@ public class SecondFragment extends Fragment {
                     }
                     Log.d(TAG, "Input Stream: " + readMessage);
                     //mConversationArrayAdapter.add(readMessage);
-                    break;
+                    break;*/
                 case MessageConstants.RESPONSE_MESSAGE:
                     readMessagesList.add(msg.obj.toString() + '\n');
                     break;

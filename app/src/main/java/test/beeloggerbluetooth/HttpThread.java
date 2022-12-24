@@ -7,18 +7,14 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class HttpThread extends Thread {
 
     private final static String TAG = "Beelogger HttpThread";
-    //String url2 = "http://community.beelogger.de/Mauchel1/Duo2/beelogger_log.php?PW=LogPW&Z=2&A=1&ID=WLAN_M_220924&M2_Data=2022/12/11_21:27:53,22.3,,,22.1,,,52.4,,-0.03,4.18,8.31,0.63,0.00,,,26.75"; //beeloggerD1_2 beeloggerD2_1 beeloggerD2_2 //TODO konfigurierbar machen
     private final FragmentActivity activity;
     private final int startIndex;
     private final List<String> readMessagesList;
@@ -35,9 +31,8 @@ public class HttpThread extends Thread {
         //httpGetRequest();
     }
 
-    private void SendLoop(String coreURL){
-        for (int i = startIndex; i < readMessagesList.size(); i += 10)
-        {
+    private void SendLoop(String coreURL) {
+        for (int i = startIndex; i < readMessagesList.size(); i += 10) {
 
             String datastring = CreateDataString(i, coreURL);
             Log.d(TAG, datastring);
@@ -59,8 +54,12 @@ public class HttpThread extends Thread {
 
             if (i < readMessagesList.size()) {
                 String message = readMessagesList.get(i).replace(' ', '_').replace("\n", "");
-                if(message.endsWith(",")){message = message.substring(0,message.length() - 1); }
-                if(message.endsWith(",")){message = message.substring(0,message.length() - 1); }
+                if (message.endsWith(",")) {
+                    message = message.substring(0, message.length() - 1);
+                }
+                if (message.endsWith(",")) {
+                    message = message.substring(0, message.length() - 1);
+                }
                 datastring = datastring.concat(message);
             }
         }
@@ -71,20 +70,8 @@ public class HttpThread extends Thread {
 
     private void httpStringRequest(String datastring) {
         StringRequest stringRequest = new StringRequest(Request.Method.GET, datastring, //TODO resend if error
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Log.d(TAG, response);
-
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.d(TAG, error.toString());
-
-                    }
-                }) {
+                response -> Log.d(TAG, response),
+                error -> Log.d(TAG, error.toString())) {
             /*@Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
