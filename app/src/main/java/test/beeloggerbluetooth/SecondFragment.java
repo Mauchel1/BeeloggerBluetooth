@@ -7,7 +7,6 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -37,12 +36,6 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.jsoup.Jsoup;
@@ -58,8 +51,12 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.charset.Charset;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -94,6 +91,7 @@ public class SecondFragment extends Fragment {
     private UUID deviceUUID;
     boolean inProgress;
 
+    private LocalDateTime lastUploadTime;
     ProgressBar pb;
     TextView pbText;
     int lastArraySize;
@@ -125,6 +123,9 @@ public class SecondFragment extends Fragment {
             // Device doesn't support Bluetooth
         }
 
+        //TODO buttons disablen / enablen je nach nutzungserlaubnis
+
+        lastUploadTime = null;
         inProgress = false;
         readMessageBuffer = "";
         filename = "";
@@ -173,7 +174,8 @@ public class SecondFragment extends Fragment {
         binding.buttonUploadData.setOnClickListener(view1 ->
         {
             //new SocketSetup().start(); //TODO welches geht?
-            new HttpThread(requireActivity()).start();
+            int index = getIndexOfFirstListelementToSend();
+            new HttpThread(requireActivity(), index, readMessagesList).start();
         });
 
         binding.buttonSave.setOnClickListener(view1 -> {
@@ -272,6 +274,26 @@ public class SecondFragment extends Fragment {
         }
     }
 
+    private int getIndexOfFirstListelementToSend(){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss", Locale.GERMAN);
+        LocalDateTime _time;
+        int i;
+        for (i = 0; i < readMessagesList.size(); i++){
+
+            try {
+                _time = LocalDateTime.parse(readMessagesList.get(i).split(",")[0], formatter); //TODO check if correct
+                if (_time.isAfter(lastUploadTime)){
+                    return i;
+                }
+            }catch (DateTimeParseException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        return -1;
+    }
+
     private void getWebsiteData() {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Handler handler = new Handler(Looper.getMainLooper());
@@ -294,17 +316,29 @@ public class SecondFragment extends Fragment {
             String finalData = data;
             handler.post(() -> {
 
-                showWebsiteData(finalData);
+                processWebsiteData(finalData);
                 //UI Thread work here
             });
         });
     }
 
-    private void showWebsiteData(String data) {
+    private void processWebsiteData(String data) {
         if (data.equals("")) {
             Toast.makeText(requireActivity().getApplicationContext(), "no data found", Toast.LENGTH_SHORT).show();
         } else {
+
             Toast.makeText(requireActivity().getApplicationContext(), data, Toast.LENGTH_SHORT).show();
+            //11.12.2022 - 21:27:53
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy - HH:mm:ss", Locale.GERMAN);
+
+            try {
+                lastUploadTime = LocalDateTime.parse(data, formatter) ;
+            }catch (DateTimeParseException e){
+                Toast.makeText(requireActivity().getApplicationContext(), "data not parsed to date", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+            }
+
         }
     }
 
@@ -588,7 +622,7 @@ public class SecondFragment extends Fragment {
             mmInStream = tmpIn;
             mmOutStream = tmpOut;
 
-            try { 
+            try {
                 if (mmOutStream != null) {
                     mmOutStream.flush();
                 }
@@ -711,10 +745,12 @@ public class SecondFragment extends Fragment {
     }
 
     private void postDataReceivedTasks() {
-        if (readMessagesList != null && readMessagesList.size() > 0 && readMessagesList.get(0).contains(".csv")) { //TODO insecure!
+        if (readMessagesList != null && readMessagesList.size() > 0 && readMessagesList.get(0).contains(".csv")) {
             filename = readMessagesList.get(0).split(".csv")[0].concat(".csv");
             etFilename.setText(filename);
-            currentData = readMessagesList.get(1); //TODO insecure! size >= 2 und size < 3
+            if (readMessagesList.size() == 2) {
+                currentData = readMessagesList.get(1);
+            }
             readMessagesList.clear();
         }
     }

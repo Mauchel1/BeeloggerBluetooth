@@ -3,10 +3,10 @@
 
         <string
             name="defaultScraperUrl"
-            >https://community.beelogger.de/Mauchel1/scraper.php?pfad=beeloggerD1_1</string>
+            >https://community.beelogger.de/Mauchel1/scraper.php?pfad=beeloggerD2_1</string>
         <string
             name="ScraperSelect"
-            >.beeloggerD1_1_Sensor_Aktualisierung</string>
+            >.beeloggerD2_1_Sensor_Aktualisierung</string>
 
 
 </resources>
