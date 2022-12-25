@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -31,6 +32,34 @@ public class FirstFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        SharedPreferences pref = requireActivity().getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+
+        EditText editTextScraperCoreUrl = view.findViewById(R.id.editTextScraperCoreUrl);
+        EditText editTextSketchID = view.findViewById(R.id.editTextSketchID);
+        EditText editTextAux = view.findViewById(R.id.editTextAux);
+        EditText editTextScraperSelect = view.findViewById(R.id.editTextScraperSelect);
+        EditText editTextPfad = view.findViewById(R.id.editTextPfad);
+        EditText editTextPassword = view.findViewById(R.id.editTextPassword);
+        EditText editTextServerdatei = view.findViewById(R.id.editTextServerdatei);
+        EditText editTextSystemkennung = view.findViewById(R.id.editTextSystemkennung);
+        EditText editTextSystemtyp = view.findViewById(R.id.editTextSystemtyp);
+        EditText editTextWebserver = view.findViewById(R.id.editTextWebserver);
+        EditText editTextZeitsynchronisation = view.findViewById(R.id.editTextZeitsynchronisation);
+
+        editTextScraperCoreUrl.setText(pref.getString("ScraperCoreUrl", String.valueOf(R.string.defaultScraperUrl)));
+        editTextScraperSelect.setText(pref.getString("ScraperSelect", String.valueOf(R.string.ScraperSelect)));
+
+        editTextWebserver.setText(pref.getString("Webserver", String.valueOf(R.string.Webserver)));
+        editTextPfad.setText(pref.getString("Pfad", String.valueOf(R.string.Pfad)));
+        editTextSystemtyp.setText(pref.getString("Systemtyp", String.valueOf(R.string.Systemtyp)));
+        editTextServerdatei.setText(pref.getString("Serverdatei", String.valueOf(R.string.Serverdatei)));
+        editTextPassword.setText(pref.getString("Password", String.valueOf(R.string.Password)));
+        editTextZeitsynchronisation.setText(pref.getString("Zeitsynchronisation", String.valueOf(R.string.Zeitsynchronisation)));
+        editTextAux.setText(pref.getString("Aux", String.valueOf(R.string.Aux)));
+        editTextSketchID.setText(pref.getString("SketchID", String.valueOf(R.string.SketchID)));
+        editTextSystemkennung.setText(pref.getString("Systemkennung", String.valueOf(R.string.Systemkennung)));
+
+
         binding.buttonFirst.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -38,8 +67,17 @@ public class FirstFragment extends Fragment {
                 //Save Setting Values
                 SharedPreferences prefs = requireActivity().getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = prefs.edit();
-                editor.putString("ScraperCoreUrl","https://community.beelogger.de/Mauchel1/scraper.php?pfad=beeloggerD1_1" );
-                editor.putString("ScraperSelect", ".beeloggerD1_1_Sensor_Aktualisierung");
+                editor.putString("ScraperCoreUrl", String.valueOf(editTextScraperCoreUrl.getText()));
+                editor.putString("ScraperSelect", String.valueOf(editTextScraperSelect.getText()));
+                editor.putString("Webserver", String.valueOf(editTextWebserver.getText()));
+                editor.putString("Pfad", String.valueOf(editTextPfad.getText()));
+                editor.putString("Systemtyp", String.valueOf(editTextSystemtyp.getText()));
+                editor.putString("Serverdatei", String.valueOf(editTextServerdatei.getText()));
+                editor.putString("Password", String.valueOf(editTextPassword.getText()));
+                editor.putString("Systemkennung", String.valueOf(editTextSystemkennung.getText()));
+                editor.putString("Zeitsynchronisation", String.valueOf(editTextZeitsynchronisation.getText()));
+                editor.putString("SketchID", String.valueOf(editTextSketchID.getText()));
+                editor.putString("Aux", String.valueOf(editTextAux.getText()));
 
                 editor.apply();
 

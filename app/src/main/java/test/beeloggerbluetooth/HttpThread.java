@@ -1,6 +1,8 @@
 package test.beeloggerbluetooth;
 
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import androidx.fragment.app.FragmentActivity;
@@ -18,12 +20,13 @@ public class HttpThread extends Thread {
     private final FragmentActivity activity;
     private final int startIndex;
     private final List<String> readMessagesList;
-
+    SharedPreferences pref;
 
     public HttpThread(FragmentActivity activity, int startIndex, List<String> readMessagesList) {
         this.readMessagesList = readMessagesList;
         this.startIndex = startIndex;
         this.activity = activity;
+        pref = activity.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
     }
 
     public void run() {
@@ -32,32 +35,53 @@ public class HttpThread extends Thread {
     }
 
     private void SendLoop(String coreURL) {
-        for (int i = startIndex; i < readMessagesList.size(); i += 10) {
+        for (int i = startIndex; i < readMessagesList.size(); i += 5) {
 
             String datastring = CreateDataString(i, coreURL);
             Log.d(TAG, datastring);
 
             httpStringRequest(datastring);
-
         }
     }
 
     private String CreateCoreUrl() {
-        return "http://community.beelogger.de/Mauchel1/Duo2/beelogger_log.php?PW=LogPW&Z=2&A=1&ID=WLAN_M_220924&M2_Data="; //TODO konfigurierbar
+
+        String coreUrl = "http://";
+        coreUrl = coreUrl.concat(pref.getString("Webserver", String.valueOf(R.string.Webserver)));
+        coreUrl = coreUrl.concat("/");
+        coreUrl = coreUrl.concat(pref.getString("Pfad", String.valueOf(R.string.Pfad)));
+        coreUrl = coreUrl.concat("/");
+        coreUrl = coreUrl.concat(pref.getString("Systemtyp", String.valueOf(R.string.Systemtyp)));
+        coreUrl = coreUrl.concat("/");
+        coreUrl = coreUrl.concat(pref.getString("Serverdatei", String.valueOf(R.string.Serverdatei)));
+        coreUrl = coreUrl.concat("?PW=");
+        coreUrl = coreUrl.concat(pref.getString("Password", String.valueOf(R.string.Password)));
+        coreUrl = coreUrl.concat("&Z=");
+        coreUrl = coreUrl.concat(pref.getString("Zeitsynchronisation", String.valueOf(R.string.Zeitsynchronisation)));
+        coreUrl = coreUrl.concat("&A=");
+        coreUrl = coreUrl.concat(pref.getString("Aux", String.valueOf(R.string.Aux)));
+        coreUrl = coreUrl.concat("&ID=");
+        coreUrl = coreUrl.concat(pref.getString("SketchID", String.valueOf(R.string.SketchID)));
+        coreUrl = coreUrl.concat("&M");
+        coreUrl = coreUrl.concat(pref.getString("Systemkennung", String.valueOf(R.string.Systemkennung)));
+        coreUrl = coreUrl.concat("_Data=");
+
+        return coreUrl;
+        //return "http://community.beelogger.de/Mauchel1/Duo2/beelogger_log.php?PW=LogPW&Z=2&A=1&ID=WLAN_M_220924&M2_Data=";
     }
 
     private String CreateDataString(int startIndex, String coreURL) {
 
         String datastring = coreURL;
 
-        for (int i = startIndex; i < startIndex + 10; i++) {
+        for (int i = startIndex; i < startIndex + 5; i++) {
 
             if (i < readMessagesList.size()) {
                 String message = readMessagesList.get(i).replace(' ', '_').replace("\n", "");
-                if (message.endsWith(",")) {
+                if (message.endsWith(",,")) {
                     message = message.substring(0, message.length() - 1);
                 }
-                if (message.endsWith(",")) {
+                if (message.endsWith(",,")) {
                     message = message.substring(0, message.length() - 1);
                 }
                 datastring = datastring.concat(message);

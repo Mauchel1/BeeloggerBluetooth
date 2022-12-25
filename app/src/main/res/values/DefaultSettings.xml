@@ -8,5 +8,32 @@
             name="ScraperSelect"
             >.beeloggerD2_1_Sensor_Aktualisierung</string>
 
+        <string
+            name="Webserver"
+            >community.beelogger.de</string>
+        <string
+            name="Pfad"
+            >Mauchel1</string>
+        <string
+            name="Systemtyp"
+            >Duo2</string>
+        <string
+            name="Serverdatei"
+            >beelogger_log.php</string>
+        <string
+            name="Password"
+            >LogPW</string>
+        <string
+            name="Systemkennung"
+            >2</string>
+        <string
+            name="Zeitsynchronisation"
+            >2</string>
+        <string
+            name="SketchID"
+            >SD_USB_BT_M_220516</string>
+        <string
+            name="Aux"
+            >1</string>
 
 </resources>
