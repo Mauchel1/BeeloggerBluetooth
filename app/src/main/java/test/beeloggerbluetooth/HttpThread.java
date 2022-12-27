@@ -1,18 +1,24 @@
 package test.beeloggerbluetooth;
 
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Looper;
 import android.util.Log;
 
 import androidx.fragment.app.FragmentActivity;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.RequestFuture;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class HttpThread extends Thread {
 
@@ -30,8 +36,32 @@ public class HttpThread extends Thread {
     }
 
     public void run() {
-        SendLoop(CreateCoreUrl());
-        //httpGetRequest();
+
+        if(readMessagesList.size() > 0 && startIndex >= 0){
+            SendLoop(CreateCoreUrl());
+        }
+    }
+
+    private void showAlert(){
+        Looper.prepare();
+        new AlertDialog.Builder(activity)
+                .setTitle("Reminder")
+                .setMessage("Make sure to switch Off Service-Switch on Beelogger!")
+
+                // Specifying a listener allows you to take an action before dismissing the dialog.
+                // The dialog is automatically dismissed when a dialog button is clicked.
+                .setPositiveButton(android.R.string.ok, null) /*new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Continue with delete operation
+                    }
+                })*/
+
+                // A null listener allows the button to dismiss the dialog and take no further action.
+                //.setNegativeButton(android.R.string.no, null)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+
+        Looper.loop();
     }
 
     private void SendLoop(String coreURL) {
@@ -40,8 +70,9 @@ public class HttpThread extends Thread {
             String datastring = CreateDataString(i, coreURL);
             Log.d(TAG, datastring);
 
-            httpStringRequest(datastring);
+            httpStringRequestSynchron(datastring, 0);
         }
+        showAlert();
     }
 
     private String CreateCoreUrl() {
@@ -67,7 +98,6 @@ public class HttpThread extends Thread {
         coreUrl = coreUrl.concat("_Data=");
 
         return coreUrl;
-        //return "http://community.beelogger.de/Mauchel1/Duo2/beelogger_log.php?PW=LogPW&Z=2&A=1&ID=WLAN_M_220924&M2_Data=";
     }
 
     private String CreateDataString(int startIndex, String coreURL) {
@@ -88,12 +118,42 @@ public class HttpThread extends Thread {
             }
         }
 
+        if (datastring.endsWith(",")) {
+            datastring = datastring.substring(0, datastring.length() - 1);
+        }
+
         return datastring;
 
     }
 
-    private void httpStringRequest(String datastring) {
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, datastring, //TODO resend if error
+    private void httpStringRequestSynchron(String datastring, int retryNumber) {
+
+        RequestFuture<String> future = RequestFuture.newFuture();
+
+        if (retryNumber < 3) {
+
+            StringRequest request = new StringRequest(Request.Method.GET, datastring, future, future);
+
+            RequestQueue requestQueue = Volley.newRequestQueue(activity);
+            requestQueue.add(request);
+
+            try {
+                String response = future.get(10, TimeUnit.SECONDS);
+
+                if (response.contains("ok *")) {
+                    Log.d(TAG, response);
+                } else {
+                    httpStringRequestSynchron(datastring, retryNumber+1);
+                }
+            } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    private void httpStringRequestAsynchron(String datastring) {
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, datastring,
                 response -> Log.d(TAG, response),
                 error -> Log.d(TAG, error.toString())) {
             /*@Override

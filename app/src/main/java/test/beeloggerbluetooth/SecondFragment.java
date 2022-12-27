@@ -113,7 +113,7 @@ public class SecondFragment extends Fragment {
 
         //TODO buttons disablen / enablen je nach nutzungserlaubnis
 
-        lastUploadTime = null;
+        lastUploadTime = LocalDateTime.MIN;
         inProgress = false;
         filename = "";
         readMessagesList = new ArrayList<>();
