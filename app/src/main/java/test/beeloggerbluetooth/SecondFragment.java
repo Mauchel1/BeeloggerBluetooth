@@ -164,6 +164,7 @@ public class SecondFragment extends Fragment {
             new HttpThread(requireActivity(), index, readMessagesList).start();
         });
 
+        binding.buttonSave.setEnabled(false);
         binding.buttonSave.setOnClickListener(view1 -> {
             if (readMessagesList.size() > 1) {
 
@@ -203,6 +204,9 @@ public class SecondFragment extends Fragment {
             }
         });
 
+        binding.btSendFn.setEnabled(false);
+        binding.btSendData.setEnabled(false);
+        binding.btSendNf.setEnabled(false);
         binding.btSendFn.setOnClickListener(view1 -> sendToBTDevice("#"));
         binding.btSendData.setOnClickListener(view1 -> sendToBTDevice("?"));
         binding.btSendNf.setOnClickListener(view1 -> sendToBTDevice("*"));
@@ -246,9 +250,16 @@ public class SecondFragment extends Fragment {
     private void sendToBTDevice(String data) {
         if (!inProgress) {
             readMessagesList.clear();
+            binding.buttonSave.setEnabled(false);
 
             write(data.getBytes(Charset.defaultCharset()));
         }
+    }
+
+    private void enableBTButtons() {
+        binding.btSendFn.setEnabled(true);
+        binding.btSendNf.setEnabled(true);
+        binding.btSendData.setEnabled(true);
     }
 
     private int getIndexOfFirstListelementToSend() {
@@ -478,7 +489,7 @@ public class SecondFragment extends Fragment {
                 Log.d(TAG, "BT Connected! ");
                 Snackbar.make(requireActivity().findViewById(R.id.coordinatorLayout), "BT Connected!",
                         Snackbar.LENGTH_SHORT).show();
-
+                enableBTButtons();
             } catch (IOException connectException) {
                 // Unable to connect; close the socket and return.
                 try {
@@ -557,6 +568,7 @@ public class SecondFragment extends Fragment {
             }
 
             readMessagesList.clear();
+            binding.buttonSave.setEnabled(false);
         }
 
         public void run() {
@@ -672,13 +684,19 @@ public class SecondFragment extends Fragment {
     }
 
     private void postDataReceivedTasks() {
-        if (readMessagesList != null && readMessagesList.size() > 0 && readMessagesList.get(0).contains(".csv")) {
-            filename = readMessagesList.get(0).split(".csv")[0].concat(".csv");
-            etFilename.setText(filename);
-            if (readMessagesList.size() == 2) {
-                currentData = readMessagesList.get(1);
+        if (readMessagesList != null && readMessagesList.size() > 0) {
+            if (readMessagesList.get(0).contains(".csv")) {
+                filename = readMessagesList.get(0).split(".csv")[0].concat(".csv");
+                etFilename.setText(filename);
+                if (readMessagesList.size() == 2) {
+                    currentData = readMessagesList.get(1);
+                }
+                readMessagesList.clear();
+                binding.buttonSave.setEnabled(false);
+            } else {
+                // datensatz
+                binding.buttonSave.setEnabled(true);
             }
-            readMessagesList.clear();
         }
     }
 
