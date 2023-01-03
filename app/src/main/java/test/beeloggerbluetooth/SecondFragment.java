@@ -75,7 +75,7 @@ public class SecondFragment extends Fragment {
 
     private TextView etFilename;
 
-    private AcceptThread mAcceptThread;
+    //private AcceptThread mAcceptThread;
     private ConnectThread mConnectThread;
     private ConnectedThread mConnectedThread;
     private BluetoothDevice mmDevice;
@@ -293,7 +293,7 @@ public class SecondFragment extends Fragment {
             //Background work here
             try {
                 SharedPreferences prefs = requireContext().getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
-                Document document = Jsoup.connect(prefs.getString("ScraperCoreUrl", requireActivity().getResources().getString(R.string.defaultScraperUrl))).get(); //TODO change default
+                Document document = Jsoup.connect(prefs.getString("ScraperCoreUrl", requireActivity().getResources().getString(R.string.defaultScraperUrl))).get();
                 data = document.select(prefs.getString("ScraperSelect", requireActivity().getResources().getString(R.string.ScraperSelect))).text();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -399,6 +399,8 @@ public class SecondFragment extends Fragment {
                 }
             });
 
+    // Not needed in Beelogger app - App always only client, Beelogger is Server
+    /*
     private class AcceptThread extends Thread {
 
         private final BluetoothServerSocket mmServerSocket;
@@ -445,6 +447,9 @@ public class SecondFragment extends Fragment {
     }
 
 
+     */
+
+
     private class ConnectThread extends Thread {
         private BluetoothSocket mmSocket;
         private final BluetoothDevice mmDevice;
@@ -455,7 +460,6 @@ public class SecondFragment extends Fragment {
             // Use a temporary object that is later assigned to mmSocket because mmSocket is final.
             mmDevice = device;
             deviceUUID = uuid;
-
 
         }
 
@@ -528,10 +532,12 @@ public class SecondFragment extends Fragment {
             mConnectThread.cancel();
             mConnectThread = null;
         }
+        /*
         if (mAcceptThread == null) {
             mAcceptThread = new AcceptThread();
             mAcceptThread.start();
         }
+        */
     }
 
     public void startClient(BluetoothDevice device, UUID uuid) {
@@ -648,7 +654,7 @@ public class SecondFragment extends Fragment {
         }
     }
 
-
+    // Progressbar
     private final Handler progressBarHandler = new Handler(Looper.getMainLooper()) {
     };
 
