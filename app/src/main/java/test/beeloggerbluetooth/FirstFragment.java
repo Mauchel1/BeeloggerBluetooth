@@ -46,18 +46,18 @@ public class FirstFragment extends Fragment {
         EditText editTextWebserver = view.findViewById(R.id.editTextWebserver);
         EditText editTextZeitsynchronisation = view.findViewById(R.id.editTextZeitsynchronisation);
 
-        editTextScraperCoreUrl.setText(pref.getString("ScraperCoreUrl", String.valueOf(R.string.defaultScraperUrl)));
-        editTextScraperSelect.setText(pref.getString("ScraperSelect", String.valueOf(R.string.ScraperSelect)));
+        editTextScraperCoreUrl.setText(pref.getString("ScraperCoreUrl", getResources().getString(R.string.defaultScraperUrl)));
+        editTextScraperSelect.setText(pref.getString("ScraperSelect", getResources().getString(R.string.ScraperSelect)));
 
-        editTextWebserver.setText(pref.getString("Webserver", String.valueOf(R.string.Webserver)));
-        editTextPfad.setText(pref.getString("Pfad", String.valueOf(R.string.Pfad)));
-        editTextSystemtyp.setText(pref.getString("Systemtyp", String.valueOf(R.string.Systemtyp)));
-        editTextServerdatei.setText(pref.getString("Serverdatei", String.valueOf(R.string.Serverdatei)));
-        editTextPassword.setText(pref.getString("Password", String.valueOf(R.string.Password)));
-        editTextZeitsynchronisation.setText(pref.getString("Zeitsynchronisation", String.valueOf(R.string.Zeitsynchronisation)));
-        editTextAux.setText(pref.getString("Aux", String.valueOf(R.string.Aux)));
-        editTextSketchID.setText(pref.getString("SketchID", String.valueOf(R.string.SketchID)));
-        editTextSystemkennung.setText(pref.getString("Systemkennung", String.valueOf(R.string.Systemkennung)));
+        editTextWebserver.setText(pref.getString("Webserver", getResources().getString(R.string.Webserver)));
+        editTextPfad.setText(pref.getString("Pfad", getResources().getString(R.string.Pfad)));
+        editTextSystemtyp.setText(pref.getString("Systemtyp", getResources().getString(R.string.Systemtyp)));
+        editTextServerdatei.setText(pref.getString("Serverdatei", getResources().getString(R.string.Serverdatei)));
+        editTextPassword.setText(pref.getString("Password", getResources().getString(R.string.Password)));
+        editTextZeitsynchronisation.setText(pref.getString("Zeitsynchronisation", getResources().getString(R.string.Zeitsynchronisation)));
+        editTextAux.setText(pref.getString("Aux", getResources().getString(R.string.Aux)));
+        editTextSketchID.setText(pref.getString("SketchID", getResources().getString(R.string.SketchID)));
+        editTextSystemkennung.setText(pref.getString("Systemkennung", getResources().getString(R.string.Systemkennung)));
 
 
         binding.buttonFirst.setOnClickListener(new View.OnClickListener() {

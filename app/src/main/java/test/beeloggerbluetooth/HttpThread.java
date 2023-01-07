@@ -78,23 +78,23 @@ public class HttpThread extends Thread {
     private String CreateCoreUrl() {
 
         String coreUrl = "http://";
-        coreUrl = coreUrl.concat(pref.getString("Webserver", String.valueOf(R.string.Webserver)));
+        coreUrl = coreUrl.concat(pref.getString("Webserver", activity.getResources().getString(R.string.Webserver)));
         coreUrl = coreUrl.concat("/");
-        coreUrl = coreUrl.concat(pref.getString("Pfad", String.valueOf(R.string.Pfad)));
+        coreUrl = coreUrl.concat(pref.getString("Pfad", activity.getResources().getString(R.string.Pfad)));
         coreUrl = coreUrl.concat("/");
-        coreUrl = coreUrl.concat(pref.getString("Systemtyp", String.valueOf(R.string.Systemtyp)));
+        coreUrl = coreUrl.concat(pref.getString("Systemtyp", activity.getResources().getString(R.string.Systemtyp)));
         coreUrl = coreUrl.concat("/");
-        coreUrl = coreUrl.concat(pref.getString("Serverdatei", String.valueOf(R.string.Serverdatei)));
+        coreUrl = coreUrl.concat(pref.getString("Serverdatei", activity.getResources().getString(R.string.Serverdatei)));
         coreUrl = coreUrl.concat("?PW=");
-        coreUrl = coreUrl.concat(pref.getString("Password", String.valueOf(R.string.Password)));
+        coreUrl = coreUrl.concat(pref.getString("Password", activity.getResources().getString(R.string.Password)));
         coreUrl = coreUrl.concat("&Z=");
-        coreUrl = coreUrl.concat(pref.getString("Zeitsynchronisation", String.valueOf(R.string.Zeitsynchronisation)));
+        coreUrl = coreUrl.concat(pref.getString("Zeitsynchronisation", activity.getResources().getString(R.string.Zeitsynchronisation)));
         coreUrl = coreUrl.concat("&A=");
-        coreUrl = coreUrl.concat(pref.getString("Aux", String.valueOf(R.string.Aux)));
+        coreUrl = coreUrl.concat(pref.getString("Aux", activity.getResources().getString(R.string.Aux)));
         coreUrl = coreUrl.concat("&ID=");
-        coreUrl = coreUrl.concat(pref.getString("SketchID", String.valueOf(R.string.SketchID)));
+        coreUrl = coreUrl.concat(pref.getString("SketchID", activity.getResources().getString(R.string.SketchID)));
         coreUrl = coreUrl.concat("&M");
-        coreUrl = coreUrl.concat(pref.getString("Systemkennung", String.valueOf(R.string.Systemkennung)));
+        coreUrl = coreUrl.concat(pref.getString("Systemkennung", activity.getResources().getString(R.string.Systemkennung)));
         coreUrl = coreUrl.concat("_Data=");
 
         return coreUrl;
