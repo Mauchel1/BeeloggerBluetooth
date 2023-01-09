@@ -12,9 +12,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="@string/ListBtDevicesButton"
+        android:text="List Devices"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/bt_BT" />
 
     <ListView
         android:id="@+id/ListBtDevices"
@@ -36,7 +36,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:text="BT"
-        app:layout_constraintStart_toEndOf="@+id/bt_ListBtDevices"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
@@ -44,32 +44,35 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
+        android:drawableLeft="@drawable/my_filename"
         android:text="get Filename"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btGetLastTime" />
+        app:layout_constraintStart_toEndOf="@+id/textView13"
+        app:layout_constraintTop_toBottomOf="@+id/ListBtDevices" />
 
     <TextView
         android:id="@+id/textView_ReceivedData"
         android:layout_width="0dp"
-        android:layout_height="200dp"
+        android:layout_height="0dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
         android:contentDescription="Received Text"
         android:textIsSelectable="true"
+        app:layout_constraintBottom_toTopOf="@+id/button_save"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/bt_Send_fn" />
+        app:layout_constraintTop_toBottomOf="@+id/bt_Send_data" />
 
     <Button
         android:id="@+id/bt_Connect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:drawableLeft="@drawable/my_bluetooth_connected"
         android:text="Connect"
-        app:layout_constraintStart_toEndOf="@+id/bt_BT"
-        app:layout_constraintTop_toTopOf="@+id/bt_BT" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/bt_ListBtDevices" />
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -98,65 +101,109 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:drawableLeft="@drawable/my_save"
         android:text="Save"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView_ReceivedData" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/bt_Send_data"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:drawableLeft="@drawable/my_download"
         android:text="Data"
-        app:layout_constraintStart_toEndOf="@+id/bt_Send_fn"
-        app:layout_constraintTop_toTopOf="@+id/bt_Send_fn" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btGetLastTime" />
 
     <Button
         android:id="@+id/bt_Send_nf"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
+        android:drawableLeft="@drawable/my_new_file"
         android:text="New File"
-        app:layout_constraintStart_toEndOf="@+id/bt_Send_data"
-        app:layout_constraintTop_toTopOf="@+id/bt_Send_data" />
+        app:layout_constraintStart_toEndOf="@+id/button_save"
+        app:layout_constraintTop_toTopOf="@+id/button_save" />
 
     <TextView
         android:id="@+id/etFilename"
-        android:layout_width="92dp"
+        android:layout_width="0dp"
         android:layout_height="29dp"
+        android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/button_uploadData"
+        app:layout_constraintStart_toEndOf="@+id/bt_Send_fn"
         app:layout_constraintTop_toBottomOf="@+id/textView2" />
 
     <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
         android:text="Filename:"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ListBtDevices" />
+        app:layout_constraintStart_toEndOf="@+id/bt_Send_fn"
+        app:layout_constraintTop_toTopOf="@+id/bt_Send_fn" />
 
     <Button
         android:id="@+id/btGetLastTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="12dp"
         android:text="Get Website Time"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ListBtDevices" />
+        app:layout_constraintStart_toEndOf="@+id/textView14"
+        app:layout_constraintTop_toBottomOf="@+id/bt_Send_fn" />
 
     <Button
         android:id="@+id/button_uploadData"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:drawableLeft="@drawable/my_upload"
         android:text="upload"
-        app:layout_constraintStart_toEndOf="@+id/btGetLastTime"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/bt_Send_data"
+        app:layout_constraintTop_toTopOf="@+id/bt_Send_data" />
+
+    <TextView
+        android:id="@+id/textView13"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Filename"
+        app:layout_constraintBottom_toBottomOf="@+id/bt_Send_fn"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/bt_Send_fn" />
+
+    <TextView
+        android:id="@+id/textView14"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Website time"
+        app:layout_constraintBottom_toBottomOf="@+id/btGetLastTime"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/btGetLastTime" />
+
+    <TextView
+        android:id="@+id/textView15"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Website Time:"
+        app:layout_constraintStart_toStartOf="@+id/etWebsiteTime"
+        app:layout_constraintTop_toTopOf="@+id/btGetLastTime" />
+
+    <TextView
+        android:id="@+id/etWebsiteTime"
+        android:layout_width="0dp"
+        android:layout_height="29dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btGetLastTime"
+        app:layout_constraintTop_toBottomOf="@+id/textView15" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
