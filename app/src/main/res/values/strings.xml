@@ -2,8 +2,10 @@
     <string name="app_name">BeeloggerBluetooth</string>
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="second_fragment_label">Second Fragment</string>
+    <string name="first_fragment_label">Settings</string>
+    <string name="second_fragment_label">BeeloggerBT</string>
+    <string name="fragment_current_data">Current Data</string>
+    <string name="fragment_help">Hilfe</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
 
@@ -28,4 +30,6 @@
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="help">Help</string>
+    <string name="current_data">Current Data</string>
 </resources>

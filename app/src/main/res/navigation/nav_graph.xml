@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/SecondFragment">
+
+    <fragment
+        android:id="@+id/FirstFragment"
+        android:name="test.beeloggerbluetooth.FirstFragment"
+        android:label="@string/first_fragment_label"
+        tools:layout="@layout/fragment_first">
+        <action
+            android:id="@+id/action_FirstFragment_to_SecondFragment"
+            app:destination="@id/SecondFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/SecondFragment"
+        android:name="test.beeloggerbluetooth.SecondFragment"
+        android:label="@string/second_fragment_label"
+        tools:layout="@layout/fragment_second">
+    </fragment>
+    <fragment
+        android:id="@+id/currentDataFragment"
+        android:name="test.beeloggerbluetooth.CurrentDataFragment"
+        android:label="@string/fragment_current_data"
+        tools:layout="@layout/fragment_current_data"/>
+    <fragment
+        android:id="@+id/helpFragment"
+        android:name="test.beeloggerbluetooth.HelpFragment"
+        android:label="@string/fragment_help"
+        tools:layout="@layout/fragment_help"/>
+    <action
+        android:id="@+id/action_global_SecondFragment"
+        app:destination="@id/SecondFragment" />
+    <action
+        android:id="@+id/action_global_helpFragment"
+        app:destination="@id/helpFragment" />
+    <action
+        android:id="@+id/action_global_currentDataFragment"
+        app:destination="@id/currentDataFragment" />
+    <action
+        android:id="@+id/action_global_FirstFragment"
+        app:destination="@id/FirstFragment" />
+</navigation>

@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".HelpFragment">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/textView18"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="In der oberen Toolbarleiste kann Bluetooth ein und ausgeschaltet werden. Außerdem kann über das Auswahlmenü die Einstellungen angezeigt werden. Diese vor dem ersten Start bitte auf das eigene System anpassen. Mit dem CurrentData Menüeintrag können die aktuellen Werte, sofern übertragen, angezeigt werden. Hilfe öffnet Diese Seite." />
+
+            <View
+                android:id="@+id/divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
+
+            <TextView
+                android:id="@+id/textView19"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Der obere linke Button listet alle gepairten Bluetoothdevices auf. Diese können ausgewählt werden. Mit dem rechten Connectbutton kann ein ausgewähltes Gerät verbunden werden." />
+
+            <View
+                android:id="@+id/divider2"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
+
+            <TextView
+                android:id="@+id/textView20"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Die Websitetime wird aus der Scraperwebsite des Beeloggers ermittelt. Die Zeit bestimmt des Zeitpunkt des zuletzt hochgeladenenen Datenpunkts. Beim Upload der Daten werden nur zeitlich danachliegende Datenpunkte hochgeladen um Mehrfachupload zu verhindern." />
+
+            <View
+                android:id="@+id/divider3"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
+
+            <TextView
+                android:id="@+id/textView21"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Überträgt den aktuellen Datensatz und den aktuellen Filename. Der Name wird zum abspeichern eines Datensatzes benötigt." />
+
+            <View
+                android:id="@+id/divider4"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
+
+            <TextView
+                android:id="@+id/textView22"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Zunächst Bluetooth einschalten. Dann BluetoothDevices auflisten, das gewünschte Device auswählen und über den Connectbutton verbinden. Dies schaltet bei Erfolg die unteren Buttons frei." />
+
+            <View
+                android:id="@+id/divider5"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
+
+            <TextView
+                android:id="@+id/textView23"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Um einen einzelnen (aktuellen) Datensatz anzuzeigen kann getFilename genutzt werden. Die Daten sind anschließend im Toolbareintrag CurrentData zu finden." />
+
+            <View
+                android:id="@+id/divider6"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
+
+            <TextView
+                android:id="@+id/textView24"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Den Gesamtdatensatz von der Stockwaage wird über Data abgerufen. Dies dauert je nach Datensatzanzahl einige Sekunden. (Anzahl der übertragenen Datensätze unten rechts an der Progressbar)." />
+
+            <View
+                android:id="@+id/divider7"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
+
+            <TextView
+                android:id="@+id/textView25"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Der Datensatz kann mit dem Savebutton abgespeichert werden. Der Speicherort wird angezeigt. Vorher Filename abrufen." />
+
+            <View
+                android:id="@+id/divider8"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
+
+            <TextView
+                android:id="@+id/textView27"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Mittels Upload wird der empfangene Datensatz auf den in den Settings hinterlegten Webserver übertragen. Vorher WebsiteTime abrufen." />
+
+            <View
+                android:id="@+id/divider9"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
+
+            <TextView
+                android:id="@+id/textView26"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Nach erfolgreichem Upload der Daten bitte ein neues File über den Button anlegen, um künftigen Datentransfer gering zu halten." />
+
+            <View
+                android:id="@+id/divider10"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
+
+            <TextView
+                android:id="@+id/textView28"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Zuletzt nicht das Ausschalten des Serviceschalters am Beelogger vergessen ;-)" />
+        </LinearLayout>
+    </ScrollView>
+</FrameLayout>
