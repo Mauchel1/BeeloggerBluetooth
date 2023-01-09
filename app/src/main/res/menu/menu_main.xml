@@ -3,8 +3,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="test.beeloggerbluetooth.MainActivity">
     <item
+        android:id="@+id/action_bt"
+        android:icon="@drawable/bluetooth"
+        android:title="Bluetooth"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/action_settings"
-        android:orderInCategory="100"
+        android:orderInCategory="101"
         android:title="@string/action_settings"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_currentData"
+        android:orderInCategory="102"
+        android:title="@string/current_data"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_help"
+        android:orderInCategory="103"
+        android:title="@string/help"
         app:showAsAction="never" />
 </menu>

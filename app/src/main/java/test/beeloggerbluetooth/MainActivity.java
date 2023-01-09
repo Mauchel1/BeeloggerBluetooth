@@ -18,6 +18,8 @@ import test.beeloggerbluetooth.databinding.ActivityMainBinding;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.util.Objects;
+
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
@@ -55,11 +57,23 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (id) {
+            case R.id.action_settings:
+                Navigation.findNavController(this, R.id.nav_host_fragment_content_main).navigate(R.id.action_global_FirstFragment);
+                return true;
+            case R.id.action_currentData:
+                Navigation.findNavController(this, R.id.nav_host_fragment_content_main).navigate(R.id.action_global_currentDataFragment);
+                return true;
+            case R.id.action_help:
+                Navigation.findNavController(this, R.id.nav_host_fragment_content_main).navigate(R.id.action_global_helpFragment);
+                return true;
+            case R.id.action_bt:
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
 
-        return super.onOptionsItemSelected(item);
+
     }
 
     @Override
