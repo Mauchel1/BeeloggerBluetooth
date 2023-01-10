@@ -24,22 +24,20 @@ public class MyReceiver extends BroadcastReceiver {
 
         if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
             if (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1) == BluetoothAdapter.STATE_OFF) {
-                binding.btBT.setTextColor(Color.LTGRAY);
                 if (menu != null) {
                     menu.findItem(R.id.action_bt).setIcon(R.drawable.my_bluetooth_disabled); //TODO init State
                 }
             } else if (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1) == BluetoothAdapter.STATE_ON) {
-                binding.btBT.setTextColor(Color.BLUE);
                 if (menu != null) {
                     menu.findItem(R.id.action_bt).setIcon(R.drawable.my_bluetooth); //TODO init State
                 }
             }
         }
-        if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
+        if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) { //TODO PASSIERT HIER WAS?
             if (intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, -1) == BluetoothAdapter.STATE_OFF) {
-                binding.btBT.setTextColor(Color.LTGRAY);
+                context.getDrawable(R.drawable.my_bluetooth_connected).setTint(Color.LTGRAY); //TODO init State
             } else if (intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, -1) == BluetoothAdapter.STATE_ON) {
-                binding.btBT.setTextColor(Color.BLUE);
+                context.getDrawable(R.drawable.my_bluetooth_connected).setTint(Color.BLUE);
             }
         }
     }

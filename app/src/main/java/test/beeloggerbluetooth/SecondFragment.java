@@ -209,14 +209,6 @@ public class SecondFragment extends Fragment {
 
         binding.btGetLastTime.setOnClickListener(view15 -> getWebsiteData());
 
-        binding.btBT.setOnClickListener(view14 -> {
-            if (BA.isEnabled()) {
-                disableBT();
-            } else {
-                enableBT();
-            }
-        });
-
         binding.btSendFn.setEnabled(false);
         binding.btSendData.setEnabled(false);
         binding.btSendNf.setEnabled(false);
@@ -259,12 +251,10 @@ public class SecondFragment extends Fragment {
     private void BluetoothButtonDisplay(MenuItem item){
 
         if (BA.isEnabled()) {
-            binding.btBT.setTextColor(Color.BLUE);
             if (item != null) {
                 item.setIcon(R.drawable.my_bluetooth);
             }
         } else {
-            binding.btBT.setTextColor(Color.LTGRAY);
             if (item != null) {
                 item.setIcon(R.drawable.my_bluetooth_disabled);
             }
