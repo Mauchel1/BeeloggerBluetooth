@@ -8,8 +8,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.view.View;
 
+import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
@@ -68,6 +70,15 @@ public class MainActivity extends AppCompatActivity {
                 Navigation.findNavController(this, R.id.nav_host_fragment_content_main).navigate(R.id.action_global_helpFragment);
                 return true;
             case R.id.action_bt:
+                Fragment host =  getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_content_main);
+                Fragment firstStackFragment = host.getChildFragmentManager().getPrimaryNavigationFragment();
+                try {
+                    SecondFragment f = (SecondFragment) firstStackFragment;
+                    f.BluetoothButtonHandling(item); //TODO CAST MIT IF ÜBERPRÜFEN
+                    } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

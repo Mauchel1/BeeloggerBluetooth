@@ -5,6 +5,8 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -61,6 +63,14 @@ public class CurrentDataFragment extends Fragment {
         // Inflate the layout for this fragment
 
         String defaultText = "Noch kein aktueller Datensatz übertragen";
+        setHasOptionsMenu(true);
         return inflater.inflate(R.layout.fragment_current_data, container, false);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        MenuItem item=menu.findItem(R.id.action_bt);
+        if(item!=null)
+            item.setVisible(false);
     }
 }

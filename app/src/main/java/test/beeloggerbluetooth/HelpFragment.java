@@ -56,7 +56,7 @@ public class HelpFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
-        setHasOptionsMenu(true);
+
 
     }
 
@@ -78,7 +78,7 @@ public class HelpFragment extends Fragment {
         String Ablaufinfo6 = "Nach erfolgreichem Upload der Daten bitte ein neues File über den Button anlegen, um künftigen Datentransfer gering zu halten.";
         String Ablaufinfo7 = "Zuletzt nicht das Ausschalten des Serviceschalters am Beelogger vergessen ;-)";
 
-
+        setHasOptionsMenu(true);
         return inflater.inflate(R.layout.fragment_help, container, false);
 
     }

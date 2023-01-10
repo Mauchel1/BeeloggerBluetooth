@@ -19,6 +19,9 @@ import android.os.Message;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -61,7 +64,6 @@ import test.beeloggerbluetooth.databinding.FragmentSecondBinding;
 
 public class SecondFragment extends Fragment {
 
-
     private FragmentSecondBinding binding;
     private BluetoothAdapter BA;
     private TextView textViewReceivedData;
@@ -80,6 +82,8 @@ public class SecondFragment extends Fragment {
     private BluetoothDevice mmDevice;
     private UUID deviceUUID;
     boolean inProgress;
+    Menu menu;
+    MyReceiver myReceiver;
 
     private LocalDateTime lastUploadTime;
     ProgressBar pb;
@@ -98,11 +102,21 @@ public class SecondFragment extends Fragment {
     }
 
     @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        this.menu = menu;
+        if (myReceiver != null){
+            myReceiver.setMenu(menu);
+        }
+    }
+
+    @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState
 
     ) {
+        setHasOptionsMenu(true);
         BluetoothManager BM = requireActivity().getSystemService(BluetoothManager.class);
         BA = BM.getAdapter();
         if (BA == null) {
@@ -119,7 +133,7 @@ public class SecondFragment extends Fragment {
         mBTDevices = new ArrayList<>();
         binding = FragmentSecondBinding.inflate(inflater, container, false);
 
-        MyReceiver myReceiver = new MyReceiver(binding);
+        myReceiver = new MyReceiver(binding);
         requireActivity().registerReceiver(myReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
         requireActivity().registerReceiver(myReceiver, new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED));
 
@@ -238,12 +252,35 @@ public class SecondFragment extends Fragment {
 
         });
 
+        BluetoothButtonDisplay(null);
+
+    }
+
+    private void BluetoothButtonDisplay(MenuItem item){
+
         if (BA.isEnabled()) {
             binding.btBT.setTextColor(Color.BLUE);
+            if (item != null) {
+                item.setIcon(R.drawable.my_bluetooth);
+            }
         } else {
             binding.btBT.setTextColor(Color.LTGRAY);
+            if (item != null) {
+                item.setIcon(R.drawable.my_bluetooth_disabled);
+            }
         }
 
+    }
+
+    public void BluetoothButtonHandling(MenuItem item){
+
+        if (BA.isEnabled()) {
+            disableBT();
+        } else {
+            enableBT();
+        }
+
+        BluetoothButtonDisplay(item);
     }
 
     private void sendToBTDevice(String data) {
