@@ -24,7 +24,11 @@
         android:id="@+id/currentDataFragment"
         android:name="test.beeloggerbluetooth.CurrentDataFragment"
         android:label="@string/fragment_current_data"
-        tools:layout="@layout/fragment_current_data"/>
+        tools:layout="@layout/fragment_current_data">
+        <argument
+            android:name="CurrentData"
+            app:argType="string" />
+    </fragment>
     <fragment
         android:id="@+id/helpFragment"
         android:name="test.beeloggerbluetooth.HelpFragment"

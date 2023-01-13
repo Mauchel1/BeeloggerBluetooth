@@ -2,11 +2,7 @@ package test.beeloggerbluetooth;
 
 import android.os.Bundle;
 
-import com.google.android.material.snackbar.Snackbar;
-
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.view.View;
 
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
@@ -26,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
+    private String currentData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +82,18 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+    }
+
+    public void setCurrentData(String cd){
+        this.currentData = cd;
+    }
+
+    public String getCurrentData(){
+        if (currentData != null) {
+            return currentData;
+        } else {
+            return "";
+        }
     }
 
     @Override

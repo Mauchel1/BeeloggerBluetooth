@@ -4,7 +4,7 @@
     tools:context="test.beeloggerbluetooth.MainActivity">
     <item
         android:id="@+id/action_bt"
-        android:icon="@drawable/bluetooth"
+        android:icon="@drawable/my_bluetooth"
         android:title="Bluetooth"
         app:showAsAction="ifRoom" />
     <item

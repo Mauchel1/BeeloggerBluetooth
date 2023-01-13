@@ -170,7 +170,7 @@ public class SecondFragment extends Fragment {
             }
         });
 
-
+        binding.buttonUploadData.setEnabled(false); //TODO enablen when data existent, websitetime versucht zu bekommen
         binding.buttonUploadData.setOnClickListener(view1 ->
         {
             int index = getIndexOfFirstListelementToSend();
@@ -194,7 +194,7 @@ public class SecondFragment extends Fragment {
                                 outStream.write(item.getBytes());
                             }
                             outStream.close();
-                            messageHandler.obtainMessage(MessageConstants.MESSAGE_TOAST, "Data saved in File: " + filepath).sendToTarget();
+                            messageHandler.obtainMessage(MessageConstants.MESSAGE_TOAST, "Data saved in File: " + filepath).sendToTarget(); //TODO Log in Datenfeld + ggf. nach unten scrollen wenn nicht automatisch
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -734,6 +734,7 @@ public class SecondFragment extends Fragment {
                 etFilename.setText(filename);
                 if (readMessagesList.size() == 2) {
                     currentData = readMessagesList.get(1);
+                    ((MainActivity) requireActivity()).setCurrentData(currentData); // TODO insecure cast
                 }
                 readMessagesList.clear();
                 binding.buttonSave.setEnabled(false);
