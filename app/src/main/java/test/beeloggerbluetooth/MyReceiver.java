@@ -25,11 +25,11 @@ public class MyReceiver extends BroadcastReceiver {
         if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
             if (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1) == BluetoothAdapter.STATE_OFF) {
                 if (menu != null) {
-                    menu.findItem(R.id.action_bt).setIcon(R.drawable.my_bluetooth_disabled); //TODO init State
+                    menu.findItem(R.id.action_bt).setIcon(R.drawable.my_bluetooth_disabled);
                 }
             } else if (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1) == BluetoothAdapter.STATE_ON) {
                 if (menu != null) {
-                    menu.findItem(R.id.action_bt).setIcon(R.drawable.my_bluetooth); //TODO init State
+                    menu.findItem(R.id.action_bt).setIcon(R.drawable.my_bluetooth);
                 }
             }
         }

@@ -108,6 +108,7 @@ public class SecondFragment extends Fragment {
         if (myReceiver != null){
             myReceiver.setMenu(menu);
         }
+        BluetoothButtonDisplay(menu.findItem(R.id.action_bt));
     }
 
     @Override
@@ -149,7 +150,6 @@ public class SecondFragment extends Fragment {
         etFilename = requireActivity().findViewById(R.id.etFilename);
         pb = requireActivity().findViewById(R.id.progressBar);
         pbText = requireActivity().findViewById(R.id.textView_Progressbar);
-
 
         //binding.buttonSecond.setOnClickListener(view17 -> NavHostFragment.findNavController(SecondFragment.this).navigate(R.id.action_SecondFragment_to_FirstFragment));
 
@@ -243,8 +243,6 @@ public class SecondFragment extends Fragment {
             mmDevice = BA.getRemoteDevice(deviceAddress);
 
         });
-
-        BluetoothButtonDisplay(null);
 
     }
 
