@@ -14,11 +14,11 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
-import test.beeloggerbluetooth.databinding.FragmentFirstBinding;
+import test.beeloggerbluetooth.databinding.FragmentSettingsBinding;
 
-public class FirstFragment extends Fragment {
+public class SettingsFragment extends Fragment {
 
-    private FragmentFirstBinding binding;
+    private FragmentSettingsBinding binding;
 
     @Override
     public View onCreateView(
@@ -26,7 +26,7 @@ public class FirstFragment extends Fragment {
             Bundle savedInstanceState
     ) {
 
-        binding = FragmentFirstBinding.inflate(inflater, container, false);
+        binding = FragmentSettingsBinding.inflate(inflater, container, false);
         setHasOptionsMenu(true);
         return binding.getRoot();
 
@@ -84,8 +84,8 @@ public class FirstFragment extends Fragment {
 
                 editor.apply();
 
-                NavHostFragment.findNavController(FirstFragment.this)
-                        .navigate(R.id.action_FirstFragment_to_SecondFragment);
+                NavHostFragment.findNavController(SettingsFragment.this)
+                        .navigate(R.id.action_SettingsFragment_to_MainFragment);
             }
         });
     }

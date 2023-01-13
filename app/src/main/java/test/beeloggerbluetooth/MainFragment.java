@@ -60,17 +60,17 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import test.beeloggerbluetooth.databinding.FragmentSecondBinding;
+import test.beeloggerbluetooth.databinding.FragmentMainBinding;
 
-public class SecondFragment extends Fragment {
+public class MainFragment extends Fragment {
 
-    private FragmentSecondBinding binding;
+    private FragmentMainBinding binding;
     private BluetoothAdapter BA;
     private TextView textViewReceivedData;
     private ArrayList<BluetoothDevice> mBTDevices = new ArrayList<>();
     private ArrayAdapter<String> pairedDevicesArrayAdapter;
     private List<String> readMessagesList;
-    private final static String TAG = "Beelogger SecondFragment";
+    private final static String TAG = "Beelogger MainFragment";
     private final static String appName = "beeloggerBluetooth";
     private static final UUID UUIDString = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); // meine alte app
 
@@ -132,7 +132,7 @@ public class SecondFragment extends Fragment {
         filename = "";
         readMessagesList = new ArrayList<>();
         mBTDevices = new ArrayList<>();
-        binding = FragmentSecondBinding.inflate(inflater, container, false);
+        binding = FragmentMainBinding.inflate(inflater, container, false);
 
         myReceiver = new MyReceiver(binding);
         requireActivity().registerReceiver(myReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
@@ -151,7 +151,7 @@ public class SecondFragment extends Fragment {
         pb = requireActivity().findViewById(R.id.progressBar);
         pbText = requireActivity().findViewById(R.id.textView_Progressbar);
 
-        //binding.buttonSecond.setOnClickListener(view17 -> NavHostFragment.findNavController(SecondFragment.this).navigate(R.id.action_SecondFragment_to_FirstFragment));
+        //binding.buttonSecond.setOnClickListener(view17 -> NavHostFragment.findNavController(MainFragment.this).navigate(R.id.action_SecondFragment_to_FirstFragment));
 
         binding.btConnect.setOnClickListener(view16 -> { //TODO if connected --> disconnect
 

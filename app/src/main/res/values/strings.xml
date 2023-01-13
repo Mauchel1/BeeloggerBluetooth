@@ -2,8 +2,8 @@
     <string name="app_name">BeeloggerBluetooth</string>
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">Settings</string>
-    <string name="second_fragment_label">BeeloggerBT</string>
+    <string name="settings_fragment_label">Settings</string>
+    <string name="main_fragment_label">BeeloggerBT</string>
     <string name="fragment_current_data">Current Data</string>
     <string name="fragment_help">Hilfe</string>
     <string name="next">Next</string>

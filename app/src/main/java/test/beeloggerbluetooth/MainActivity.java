@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         switch (id) {
             case R.id.action_settings:
-                Navigation.findNavController(this, R.id.nav_host_fragment_content_main).navigate(R.id.action_global_FirstFragment);
+                Navigation.findNavController(this, R.id.nav_host_fragment_content_main).navigate(R.id.action_global_SettingsFragment);
                 return true;
             case R.id.action_currentData:
                 Navigation.findNavController(this, R.id.nav_host_fragment_content_main).navigate(R.id.action_global_currentDataFragment);
@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
                 Fragment host =  getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_content_main);
                 Fragment firstStackFragment = host.getChildFragmentManager().getPrimaryNavigationFragment();
                 try {
-                    SecondFragment f = (SecondFragment) firstStackFragment;
+                    MainFragment f = (MainFragment) firstStackFragment;
                     f.BluetoothButtonHandling(item); //TODO CAST MIT IF ÜBERPRÜFEN
                     } catch (Exception e) {
                     e.printStackTrace();

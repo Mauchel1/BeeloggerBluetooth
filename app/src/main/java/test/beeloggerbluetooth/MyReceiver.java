@@ -8,13 +8,13 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.view.Menu;
 
-import test.beeloggerbluetooth.databinding.FragmentSecondBinding;
+import test.beeloggerbluetooth.databinding.FragmentMainBinding;
 
 public class MyReceiver extends BroadcastReceiver {
-    private final FragmentSecondBinding binding;
+    private final FragmentMainBinding binding;
     private Menu menu;
 
-    public MyReceiver(FragmentSecondBinding binding) {
+    public MyReceiver(FragmentMainBinding binding) {
         this.binding = binding;
     }
 
