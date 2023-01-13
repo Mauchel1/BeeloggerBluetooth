@@ -520,7 +520,18 @@ public class SecondFragment extends Fragment {
                 Log.d(TAG, "BT Connected! ");
                 Snackbar.make(requireActivity().findViewById(R.id.coordinatorLayout), "BT Connected!",
                         Snackbar.LENGTH_SHORT).show();
-                enableBTButtons();
+
+                requireActivity().runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+
+                        // Stuff that updates the UI
+                        enableBTButtons();
+                    }
+                });
+
+
             } catch (IOException connectException) {
                 // Unable to connect; close the socket and return.
                 try {
