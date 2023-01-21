@@ -11,7 +11,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -68,7 +67,7 @@ public class MainFragment extends Fragment {
     private BluetoothAdapter BA;
     private TextView textViewReceivedData;
     private ArrayList<BluetoothDevice> mBTDevices = new ArrayList<>();
-    private ArrayAdapter<String> pairedDevicesArrayAdapter;
+    private DeviceListAdapter pairedDevicesArrayAdapter;
     private List<String> readMessagesList;
     private final static String TAG = "Beelogger MainFragment";
     private final static String appName = "beeloggerBluetooth";
@@ -79,6 +78,7 @@ public class MainFragment extends Fragment {
     //private AcceptThread mAcceptThread;
     private ConnectThread mConnectThread;
     private ConnectedThread mConnectedThread;
+    private BluetoothSocket mmSocket;
     private BluetoothDevice mmDevice;
     private UUID deviceUUID;
     boolean inProgress;
@@ -105,7 +105,7 @@ public class MainFragment extends Fragment {
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         this.menu = menu;
-        if (myReceiver != null){
+        if (myReceiver != null) {
             myReceiver.setMenu(menu);
         }
         BluetoothButtonDisplay(menu.findItem(R.id.action_bt));
@@ -136,7 +136,8 @@ public class MainFragment extends Fragment {
 
         myReceiver = new MyReceiver(binding);
         requireActivity().registerReceiver(myReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
-        requireActivity().registerReceiver(myReceiver, new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED));
+        requireActivity().registerReceiver(myReceiver, new IntentFilter(BluetoothDevice.ACTION_ACL_CONNECTED));
+        requireActivity().registerReceiver(myReceiver, new IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED));
 
         return binding.getRoot();
     }
@@ -151,22 +152,28 @@ public class MainFragment extends Fragment {
         pb = requireActivity().findViewById(R.id.progressBar);
         pbText = requireActivity().findViewById(R.id.textView_Progressbar);
 
-        //binding.buttonSecond.setOnClickListener(view17 -> NavHostFragment.findNavController(MainFragment.this).navigate(R.id.action_SecondFragment_to_FirstFragment));
-
-        binding.btConnect.setOnClickListener(view16 -> { //TODO if connected --> disconnect
+        binding.btConnect.setOnClickListener(view16 -> {
 
             if (mmDevice != null) {
 
-                if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                    requestPermissionLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT);
+                if (mmSocket != null && mmSocket.isConnected()) {
+                    if (mConnectedThread != null && mConnectedThread.isAlive()) {
+                        mConnectedThread.cancel();
+                    }
+                    if (mConnectThread != null && mConnectThread.isAlive()) {
+                        mConnectThread.cancel();
+                    }
+                } else {
+                    if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                        requestPermissionLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT);
+                    }
+                    Log.d(TAG, "Connect to device:" + mmDevice.getName());
+                    myReceiver.setBTDevice(mmDevice);
+                    start();
+                    startClient(mmDevice, UUIDString);
                 }
-                Log.d(TAG, "Connect to device:" + mmDevice.getName());
-                start();
-                startClient(mmDevice, UUIDString);
-
             } else {
                 Log.d(TAG, "Connect to device error: device null");
-
             }
         });
 
@@ -218,10 +225,12 @@ public class MainFragment extends Fragment {
 
         binding.btListBtDevices.setOnClickListener(view12 -> listBTDevices());
 
-        pairedDevicesArrayAdapter = new ArrayAdapter<>(requireActivity(), R.layout.device_name);
-        ListView listView = requireActivity().findViewById(R.id.ListBtDevices);
-        listView.setAdapter(pairedDevicesArrayAdapter);
-        listView.setOnItemClickListener((av, view1, i, l) -> {
+        pairedDevicesArrayAdapter = new DeviceListAdapter(requireActivity(), R.layout.device_name, mBTDevices);
+        ListView lv_BtDevices = requireActivity().findViewById(R.id.ListBtDevices);
+        lv_BtDevices.setAdapter(pairedDevicesArrayAdapter);
+        myReceiver.setInitHeight(lv_BtDevices.getLayoutParams().height);
+        myReceiver.setPairedDeviceAdapter(pairedDevicesArrayAdapter, lv_BtDevices);
+        lv_BtDevices.setOnItemClickListener((av, view1, i, l) -> {
             if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissionLauncher.launch(Manifest.permission.BLUETOOTH_SCAN);
                 Log.d(TAG, "checkSelfPermission failed ");
@@ -233,20 +242,20 @@ public class MainFragment extends Fragment {
                 requestPermissionLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT);
                 Log.d(TAG, "checkSelfPermission failed ");
             }
-            String deviceName = mBTDevices.get(i).getName();
-            String deviceAddress = mBTDevices.get(i).getAddress();
+
+            String deviceName = pairedDevicesArrayAdapter.getItem(i).getName();
+            String deviceAddress = pairedDevicesArrayAdapter.getItem(i).getAddress();
 
             Log.d(TAG, "onItemClick: deviceName = " + deviceName);
             Log.d(TAG, "onItemClick: deviceAddress = " + deviceAddress);
 
-            //listView.;
             mmDevice = BA.getRemoteDevice(deviceAddress);
 
         });
 
     }
 
-    private void BluetoothButtonDisplay(MenuItem item){
+    private void BluetoothButtonDisplay(MenuItem item) {
 
         if (BA.isEnabled()) {
             if (item != null) {
@@ -260,7 +269,7 @@ public class MainFragment extends Fragment {
 
     }
 
-    public void BluetoothButtonHandling(MenuItem item){
+    public void BluetoothButtonHandling(MenuItem item) {
 
         if (BA.isEnabled()) {
             disableBT();
@@ -322,8 +331,6 @@ public class MainFragment extends Fragment {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-            //GET /Mauchel1/Duo2/beelogger_log.php?
 
             String finalData = data;
             handler.post(() -> {
@@ -388,7 +395,7 @@ public class MainFragment extends Fragment {
 
 
         if (!BA.isEnabled()) {
-            enableBT();
+            enableBT(); //TODO besser Button disablen und enablen wenn bt an
         }
 
         Set<BluetoothDevice> pairedDevices = BA.getBondedDevices();
@@ -397,10 +404,8 @@ public class MainFragment extends Fragment {
         if (pairedDevices.size() > 0) {
             // There are paired devices. Get the name and address of each paired device.
             pairedDevicesArrayAdapter.clear();
-            mBTDevices.clear();
             for (BluetoothDevice device : pairedDevices) {
-                pairedDevicesArrayAdapter.add(device.getName() + "\n" + device.getAddress());
-                mBTDevices.add(device);
+                pairedDevicesArrayAdapter.add(device);//.getName() + "\n" + device.getAddress());
             }
         }
     }
@@ -476,7 +481,6 @@ public class MainFragment extends Fragment {
 
 
     private class ConnectThread extends Thread {
-        private BluetoothSocket mmSocket;
         private final BluetoothDevice mmDevice;
 
         public ConnectThread(BluetoothDevice device, UUID uuid) {
@@ -514,7 +518,6 @@ public class MainFragment extends Fragment {
                 // until it succeeds or throws an exception.
                 Log.d(TAG, "try to BT Connect... ");
                 mmSocket.connect();
-                binding.btConnect.setTextColor(Color.BLUE);
                 Log.d(TAG, "BT Connected! ");
                 Snackbar.make(requireActivity().findViewById(R.id.coordinatorLayout), "BT Connected!",
                         Snackbar.LENGTH_SHORT).show();
@@ -541,7 +544,6 @@ public class MainFragment extends Fragment {
                 Snackbar.make(requireActivity().findViewById(R.id.coordinatorLayout), "BT Connection Failed",
                         Snackbar.LENGTH_SHORT).show();
 
-                binding.btConnect.setTextColor(Color.LTGRAY);
 
                 return;
             }
@@ -554,7 +556,6 @@ public class MainFragment extends Fragment {
         // Closes the client socket and causes the thread to finish.
         public void cancel() {
             try {
-                binding.btConnect.setTextColor(Color.LTGRAY);
                 mmSocket.close();
             } catch (IOException e) {
                 Log.e(TAG, "Could not close the client socket", e);
@@ -670,7 +671,6 @@ public class MainFragment extends Fragment {
         public void cancel() {
             try {
                 mmSocket.close();
-                binding.btConnect.setTextColor(Color.LTGRAY);
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -36,7 +36,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
         android:drawableLeft="@drawable/my_filename"
-        android:text="get Filename"
+        android:text="Get"
         app:layout_constraintStart_toEndOf="@+id/textView13"
         app:layout_constraintTop_toBottomOf="@+id/ListBtDevices" />
 
@@ -144,7 +144,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="12dp"
-        android:text="Get Website Time"
+        android:text="Get"
         app:layout_constraintStart_toEndOf="@+id/textView14"
         app:layout_constraintTop_toBottomOf="@+id/bt_Send_fn" />
 
