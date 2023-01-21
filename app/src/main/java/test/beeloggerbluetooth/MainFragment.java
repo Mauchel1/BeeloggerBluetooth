@@ -177,7 +177,7 @@ public class MainFragment extends Fragment {
             }
         });
 
-        binding.buttonUploadData.setEnabled(false); //TODO enablen when data existent, websitetime versucht zu bekommen
+        binding.buttonUploadData.setEnabled(false);
         binding.buttonUploadData.setOnClickListener(view1 ->
         {
             int index = getIndexOfFirstListelementToSend();
@@ -288,6 +288,7 @@ public class MainFragment extends Fragment {
         if (!inProgress) {
             readMessagesList.clear();
             binding.buttonSave.setEnabled(false);
+            binding.buttonUploadData.setEnabled(false);
 
             write(data.getBytes(Charset.defaultCharset()));
         }
@@ -348,6 +349,7 @@ public class MainFragment extends Fragment {
     private void processWebsiteData(String data) {
         if (data.equals("")) {
             Toast.makeText(requireActivity().getApplicationContext(), "no data found", Toast.LENGTH_SHORT).show();
+            binding.etWebsiteTime.setText("not found");
         } else {
 
             Toast.makeText(requireActivity().getApplicationContext(), data, Toast.LENGTH_SHORT).show();
@@ -357,9 +359,11 @@ public class MainFragment extends Fragment {
 
             try {
                 lastUploadTime = LocalDateTime.parse(data, formatter);
+                binding.etWebsiteTime.setText(lastUploadTime.toString());
             } catch (DateTimeParseException e) {
                 Toast.makeText(requireActivity().getApplicationContext(), "data not parsed to date", Toast.LENGTH_SHORT).show();
                 e.printStackTrace();
+                binding.etWebsiteTime.setText("not parsable");
             }
         }
     }
@@ -617,6 +621,7 @@ public class MainFragment extends Fragment {
 
             readMessagesList.clear();
             binding.buttonSave.setEnabled(false);
+            binding.buttonUploadData.setEnabled(false);
         }
 
         public void run() {
@@ -741,8 +746,12 @@ public class MainFragment extends Fragment {
                 }
                 readMessagesList.clear();
                 binding.buttonSave.setEnabled(false);
+                binding.buttonUploadData.setEnabled(false);
             } else {
                 // datensatz
+                if(binding.etWebsiteTime.getText().length() > 1){
+                    binding.buttonUploadData.setEnabled(true);
+                }
                 binding.buttonSave.setEnabled(true);
             }
         }
