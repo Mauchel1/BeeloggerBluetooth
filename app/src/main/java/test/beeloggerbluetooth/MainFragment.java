@@ -216,6 +216,7 @@ public class MainFragment extends Fragment {
 
         binding.btGetLastTime.setOnClickListener(view15 -> getWebsiteData());
 
+        binding.btConnect.setEnabled(false);
         binding.btSendFn.setEnabled(false);
         binding.btSendData.setEnabled(false);
         binding.btSendNf.setEnabled(false);
@@ -250,6 +251,9 @@ public class MainFragment extends Fragment {
             Log.d(TAG, "onItemClick: deviceAddress = " + deviceAddress);
 
             mmDevice = BA.getRemoteDevice(deviceAddress);
+            if(mmDevice != null){
+                binding.btConnect.setEnabled(true);
+            }
 
         });
 
@@ -404,6 +408,7 @@ public class MainFragment extends Fragment {
         if (pairedDevices.size() > 0) {
             // There are paired devices. Get the name and address of each paired device.
             pairedDevicesArrayAdapter.clear();
+            binding.btConnect.setEnabled(false);
             for (BluetoothDevice device : pairedDevices) {
                 pairedDevicesArrayAdapter.add(device);//.getName() + "\n" + device.getAddress());
             }

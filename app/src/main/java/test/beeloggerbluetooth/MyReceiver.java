@@ -93,6 +93,7 @@ public class MyReceiver extends BroadcastReceiver {
                 binding.btSendFn.setEnabled(false);
                 binding.btSendData.setEnabled(false);
                 binding.btSendNf.setEnabled(false);
+                binding.btConnect.setEnabled(false);
                 pairedDevicesArrayAdapter.clear();
                 lv_BtDevices.getLayoutParams().height = initHeight;
 
