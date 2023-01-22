@@ -194,7 +194,7 @@ public class MainFragment extends Fragment {
                 if (filename.endsWith(".csv") && !readMessagesList.get(0).contains(".csv")) {
 
                     File path = requireActivity().getFilesDir();
-                    File filepath = new File(path + filename);
+                    File filepath = new File(path, filename);
 
                     if (!filepath.exists()) {
 
@@ -204,15 +204,18 @@ public class MainFragment extends Fragment {
                                 outStream.write(item.getBytes());
                             }
                             outStream.close();
-                            messageHandler.obtainMessage(MessageConstants.MESSAGE_TOAST, "Data saved in File: " + filepath).sendToTarget(); //TODO Log in Datenfeld + ggf. nach unten scrollen wenn nicht automatisch
+                            messageHandler.obtainMessage(MessageConstants.MESSAGE_TOAST, "Data saved in File: " + filepath).sendToTarget();
+                            messageHandler.obtainMessage(MessageConstants.MESSAGE_LOG, 1, 0, "Data saved in File: " + filepath).sendToTarget();
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     } else {
-                        messageHandler.obtainMessage(MessageConstants.MESSAGE_TOAST, "File already exists: " + filepath).sendToTarget(); //TODO Kommt nicht
+                        messageHandler.obtainMessage(MessageConstants.MESSAGE_LOG, 1, 0, "File already exists" + filepath).sendToTarget();
+                        messageHandler.obtainMessage(MessageConstants.MESSAGE_TOAST, "File already exists: " + filepath).sendToTarget();
                     }
                 } else {
-                    messageHandler.obtainMessage(MessageConstants.MESSAGE_TOAST, "No Data to save").sendToTarget();
+                    messageHandler.obtainMessage(MessageConstants.MESSAGE_LOG, 1, 0, "Filename not set or no Data to save").sendToTarget();
+                    messageHandler.obtainMessage(MessageConstants.MESSAGE_TOAST, "Filename not set or no Data to save").sendToTarget();
                 }
             }
         });
@@ -772,7 +775,7 @@ public class MainFragment extends Fragment {
             switch (msg.what) {
                 case MessageConstants.MESSAGE_LOG:
                     Log.d(TAG, msg.obj.toString());
-                    if(debugMode)
+                    if(debugMode || msg.arg1 == 1)
                     {
                         textViewReceivedData.append(msg.obj.toString() + "\n");
                     }

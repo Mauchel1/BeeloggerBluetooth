@@ -72,6 +72,7 @@ public class HttpThread extends Thread {
 
             httpStringRequestSynchron(datastring, 0);
         }
+        ((MainActivity) activity).mainFragment.messageHandler.obtainMessage(MainFragment.MessageConstants.MESSAGE_LOG, 1,0, "Data Send! ").sendToTarget();
         showAlert();
     }
 
