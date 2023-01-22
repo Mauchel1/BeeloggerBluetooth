@@ -140,6 +140,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Zuletzt nicht das Ausschalten des Serviceschalters am Beelogger vergessen ;-)" />
+
+            <Switch
+                android:id="@+id/sw_debug"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:text="Debugmode" />
+
         </LinearLayout>
     </ScrollView>
+
 </FrameLayout>

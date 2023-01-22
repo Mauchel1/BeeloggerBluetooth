@@ -139,7 +139,7 @@ public class HttpThread extends Thread {
 
             try {
                 String response = future.get(10, TimeUnit.SECONDS);
-
+                ((MainActivity) activity).mainFragment.messageHandler.obtainMessage(MainFragment.MessageConstants.MESSAGE_LOG, "Response from Server: " + response).sendToTarget();
                 if (response.contains("ok *")) {
                     Log.d(TAG, response);
                 } else {

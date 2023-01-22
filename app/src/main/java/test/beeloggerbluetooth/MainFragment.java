@@ -23,7 +23,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -73,6 +72,12 @@ public class MainFragment extends Fragment {
     private final static String appName = "beeloggerBluetooth";
     private static final UUID UUIDString = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); // meine alte app
 
+    public boolean isDebugMode() {
+        return debugMode;
+    }
+
+    private boolean debugMode = false;
+
     private TextView etFilename;
 
     //private AcceptThread mAcceptThread;
@@ -92,13 +97,11 @@ public class MainFragment extends Fragment {
     String filename;
     String currentData;
 
-    private interface MessageConstants {
-        int MESSAGE_READ = 0;
-        int MESSAGE_WRITE = 1;
+    public interface MessageConstants {
+        int MESSAGE_LOG_ERROR = 0;
+        int MESSAGE_LOG = 1;
         int MESSAGE_TOAST = 2;
         int RESPONSE_MESSAGE = 3;
-
-        // ... (Add other message types here as needed.)
     }
 
     @Override
@@ -167,13 +170,13 @@ public class MainFragment extends Fragment {
                     if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                         requestPermissionLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT);
                     }
-                    Log.d(TAG, "Connect to device:" + mmDevice.getName());
+                    messageHandler.obtainMessage(MessageConstants.MESSAGE_LOG, "Connect to device:" + mmDevice.getName()).sendToTarget();
                     myReceiver.setBTDevice(mmDevice);
                     start();
                     startClient(mmDevice, UUIDString);
                 }
             } else {
-                Log.d(TAG, "Connect to device error: device null");
+                messageHandler.obtainMessage(MessageConstants.MESSAGE_LOG_ERROR, "Connect to device error: device null").sendToTarget();
             }
         });
 
@@ -234,21 +237,21 @@ public class MainFragment extends Fragment {
         lv_BtDevices.setOnItemClickListener((av, view1, i, l) -> {
             if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissionLauncher.launch(Manifest.permission.BLUETOOTH_SCAN);
-                Log.d(TAG, "checkSelfPermission failed ");
+                messageHandler.obtainMessage(MessageConstants.MESSAGE_LOG_ERROR, "checkSelfPermission failed").sendToTarget();
             }
             BA.cancelDiscovery();
 
-            Log.d(TAG, "onItemClick: You Clicked on a device.");
+            messageHandler.obtainMessage(MessageConstants.MESSAGE_LOG, "You Clicked on a device:").sendToTarget();
             if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissionLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT);
-                Log.d(TAG, "checkSelfPermission failed ");
+                messageHandler.obtainMessage(MessageConstants.MESSAGE_LOG_ERROR, "checkSelfPermission failed").sendToTarget();
             }
 
             String deviceName = pairedDevicesArrayAdapter.getItem(i).getName();
             String deviceAddress = pairedDevicesArrayAdapter.getItem(i).getAddress();
 
-            Log.d(TAG, "onItemClick: deviceName = " + deviceName);
-            Log.d(TAG, "onItemClick: deviceAddress = " + deviceAddress);
+            messageHandler.obtainMessage(MessageConstants.MESSAGE_LOG, "deviceName = " + deviceName).sendToTarget();
+            messageHandler.obtainMessage(MessageConstants.MESSAGE_LOG, "deviceAddress = " + deviceAddress).sendToTarget();
 
             mmDevice = BA.getRemoteDevice(deviceAddress);
             if(mmDevice != null){
@@ -396,6 +399,12 @@ public class MainFragment extends Fragment {
         }
     }
 
+    public void setDebugMode(boolean debugMode) {
+        this.debugMode = debugMode;
+        messageHandler.obtainMessage(MessageConstants.MESSAGE_LOG, "Debug Mode = " + debugMode).sendToTarget();
+
+    }
+
     private void listBTDevices() {
         if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
             requestPermissionLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT);
@@ -525,9 +534,9 @@ public class MainFragment extends Fragment {
             try {
                 // Connect to the remote device through the socket. This call blocks
                 // until it succeeds or throws an exception.
-                Log.d(TAG, "try to BT Connect... ");
+                messageHandler.obtainMessage(MessageConstants.MESSAGE_LOG, "try to BT Connect... ").sendToTarget();
                 mmSocket.connect();
-                Log.d(TAG, "BT Connected! ");
+                messageHandler.obtainMessage(MessageConstants.MESSAGE_LOG, "BT Connected! ").sendToTarget();
                 Snackbar.make(requireActivity().findViewById(R.id.coordinatorLayout), "BT Connected!",
                         Snackbar.LENGTH_SHORT).show();
 
@@ -549,7 +558,7 @@ public class MainFragment extends Fragment {
                 } catch (IOException closeException) {
                     Log.e(TAG, "Could not close the client socket", closeException);
                 }
-                Log.d(TAG, "BT Connection Failed! ");
+                messageHandler.obtainMessage(MessageConstants.MESSAGE_LOG_ERROR, "BT Connection Failed!").sendToTarget();
                 Snackbar.make(requireActivity().findViewById(R.id.coordinatorLayout), "BT Connection Failed",
                         Snackbar.LENGTH_SHORT).show();
 
@@ -634,6 +643,7 @@ public class MainFragment extends Fragment {
                 try {
 
                     String resp = br.readLine();
+                    //messageHandler.obtainMessage(MessageConstants.MESSAGE_LOG, "deviceName = " + deviceName).sendToTarget();
                     Log.d(TAG, "Received: " + resp);
 
                     Message msg = new Message();
@@ -650,7 +660,7 @@ public class MainFragment extends Fragment {
                     //readMsg.sendToTarget();
 
                 } catch (IOException e) {
-                    Log.e(TAG, "Error reading Inputstream" + e.getMessage());
+                    messageHandler.obtainMessage(MessageConstants.MESSAGE_LOG_ERROR, "reading Inputstream " + e.getMessage()).sendToTarget();
                     break;
                 }
             }
@@ -659,7 +669,7 @@ public class MainFragment extends Fragment {
         public void write(byte[] bytes) {
             String text = new String(bytes, Charset.defaultCharset());
             if (mmSocket != null && mmSocket.isConnected()) {
-                Log.d(TAG, "write: Writing to outputstream: " + text);
+                messageHandler.obtainMessage(MessageConstants.MESSAGE_LOG, "writing to Outputstream: " + text).sendToTarget();
                 try {
                     mmOutStream.write(bytes);
                     if (!progressBarHandler.hasCallbacks(runnableProgressBar)) {
@@ -668,9 +678,8 @@ public class MainFragment extends Fragment {
                         pb.setVisibility(View.VISIBLE);
                         inProgress = true;
                     }
-
                 } catch (IOException e) {
-                    Log.e(TAG, "Error writing Outputstream" + e.getMessage());
+                    messageHandler.obtainMessage(MessageConstants.MESSAGE_LOG_ERROR, "writing Outputstream " + e.getMessage()).sendToTarget();
                 }
             } else {
                 Snackbar.make(requireActivity().findViewById(R.id.coordinatorLayout), "Not connected to BT Device",
@@ -757,33 +766,24 @@ public class MainFragment extends Fragment {
         }
     }
 
-    private final Handler messageHandler = new Handler(Looper.getMainLooper()) {
+    public final Handler messageHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                /*case MessageConstants.MESSAGE_WRITE:
-                    byte[] writeBuf = (byte[]) msg.obj;
-                    // construct a string from the buffer
-                    String writeMessage = new String(writeBuf);
-                    //mConversationArrayAdapter.add("Me:  " + writeMessage);
-                    break;
-                case MessageConstants.MESSAGE_READ:
-                    byte[] readBuf = (byte[]) msg.obj;
-                    // construct a string from the valid bytes in the buffer
-                    String readMessage = new String(readBuf, 0, msg.arg1);
-
-                    if (readMessage.contains("\n")) {
-
-                        readMessagesList.add(readMessageBuffer.concat(readMessage));
-
-                        readMessageBuffer = "";
-
-                    } else {
-                        readMessageBuffer = readMessageBuffer.concat(readMessage);
+                case MessageConstants.MESSAGE_LOG:
+                    Log.d(TAG, msg.obj.toString());
+                    if(debugMode)
+                    {
+                        textViewReceivedData.append(msg.obj.toString() + "\n");
                     }
-                    Log.d(TAG, "Input Stream: " + readMessage);
-                    //mConversationArrayAdapter.add(readMessage);
-                    break;*/
+                    break;
+                case MessageConstants.MESSAGE_LOG_ERROR:
+                    Log.e(TAG, msg.obj.toString());
+                    if(debugMode)
+                    {
+                        textViewReceivedData.append("ERROR: " + msg.obj.toString() + "\n");
+                    }
+                    break;
                 case MessageConstants.RESPONSE_MESSAGE:
                     readMessagesList.add(msg.obj.toString() + '\n');
                     break;
