@@ -3,7 +3,7 @@
 
         <string
             name="defaultScraperUrl"
-            >https://community.beelogger.de/Mauchel1/scraper.php?pfad=beeloggerD2_1</string>
+            >https://community.beelogger.de/DEIN_NAME/scraper.php?pfad=beeloggerD2_1</string>
         <string
             name="ScraperSelect"
             >.beeloggerD2_1_Sensor_Aktualisierung</string>
@@ -13,7 +13,7 @@
             >community.beelogger.de</string>
         <string
             name="Pfad"
-            >Mauchel1</string>
+            >DEIN_NAME</string>
         <string
             name="Systemtyp"
             >Duo2</string>
@@ -22,7 +22,7 @@
             >beelogger_log.php</string>
         <string
             name="Password"
-            >LogPW</string>
+            >Log</string>
         <string
             name="Systemkennung"
             >2</string>
