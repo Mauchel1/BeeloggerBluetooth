@@ -1,0 +1,29 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.BeeloggerBluetooth" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">#ffff67</item>
+        <item name="colorPrimaryVariant">#484738</item>
+        <item name="colorOnPrimary">#ffffb0</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">#00FFFC</item>
+        <item name="colorSecondaryVariant">#AEAC9A</item>
+        <item name="colorOnSecondary">#605F4F</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <!-- Customize your theme here. -->
+        <item name="button_text_color">@color/black</item>
+        <item name="lv_background_color">@color/white</item>
+        <item name="background_color">#ffffb0</item>
+
+    </style>
+
+    <style name="Theme.BeeloggerBluetooth.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.BeeloggerBluetooth.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="Theme.BeeloggerBluetooth.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+</resources>
