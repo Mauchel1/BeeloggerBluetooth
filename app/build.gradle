@@ -3,6 +3,10 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        release {
+        }
+    }
     namespace 'test.beeloggerbluetooth'
     compileSdk 32
 
