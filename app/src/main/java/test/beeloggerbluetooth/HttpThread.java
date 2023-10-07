@@ -66,13 +66,17 @@ public class HttpThread extends Thread {
 
     private void SendLoop(String coreURL) {
         for (int i = startIndex; i < readMessagesList.size(); i += 5) {
-
+        //TODO log prozess during upload
             String datastring = CreateDataString(i, coreURL);
             Log.d(TAG, datastring);
 
             httpStringRequestSynchron(datastring, 0);
+            if(i%25 == 0) {
+                ((MainActivity) activity).mainFragment.messageHandler.obtainMessage(MainFragment.MessageConstants.PROGRESS, i+":"+readMessagesList.size()).sendToTarget();
+            }
         }
         ((MainActivity) activity).mainFragment.messageHandler.obtainMessage(MainFragment.MessageConstants.MESSAGE_LOG, 1,0, "Data Send! ").sendToTarget();
+        ((MainActivity) activity).mainFragment.messageHandler.obtainMessage(MainFragment.MessageConstants.PROGRESS, "done").sendToTarget();
         showAlert();
     }
 
@@ -148,6 +152,7 @@ public class HttpThread extends Thread {
                 }
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 e.printStackTrace();
+                ((MainActivity) activity).mainFragment.messageHandler.obtainMessage(MainFragment.MessageConstants.MESSAGE_LOG_ERROR, e.getMessage()).sendToTarget();
             }
         }
     }

@@ -42,6 +42,7 @@ import org.jsoup.nodes.Document;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -102,6 +103,7 @@ public class MainFragment extends Fragment {
         int MESSAGE_LOG = 1;
         int MESSAGE_TOAST = 2;
         int RESPONSE_MESSAGE = 3;
+        int PROGRESS = 4;
     }
 
     @Override
@@ -220,6 +222,71 @@ public class MainFragment extends Fragment {
             }
         });
 
+        binding.buttonLoad.setOnClickListener(view1 -> {
+
+            if (inProgress) {
+                return;
+            }
+
+            //check for files
+            File[] files = requireActivity().getFilesDir().listFiles();
+            File lastFile = null;
+
+            if (files != null) {
+                for (File file : files) {
+
+                    try {
+                        //file.getName().matches("[0-9]+"))
+                        int filenumber = Integer.parseInt(file.getName().split(".csv")[0]);
+                        if (null == lastFile) {
+                            lastFile = file;
+                        } else if (Integer.parseInt(lastFile.getName().split(".csv")[0]) < filenumber) {
+                            lastFile = file;
+                        }
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
+            }
+
+            if (null == lastFile) {
+                messageHandler.obtainMessage(MessageConstants.MESSAGE_TOAST, "No File found to load").sendToTarget();
+                return;
+            }
+
+            // read file
+            try {
+                BufferedReader reader;
+                reader = new BufferedReader(new FileReader(lastFile));
+                String line = reader.readLine();
+                if (line != null) {
+                    readMessagesList.clear();
+                }
+                while (line != null) {
+                    readMessagesList.add(line);
+                    line = reader.readLine();
+                }
+
+                reader.close();
+            } catch (IOException e) {
+                messageHandler.obtainMessage(MessageConstants.MESSAGE_LOG_ERROR, "reading Inputstream " + e.getMessage()).sendToTarget();
+                e.printStackTrace();
+            }
+
+            // display file
+            int i = 0;
+            textViewReceivedData.append(readMessagesList.get(1));
+            for (String line:readMessagesList) {
+                i++;
+                if (i%25 == 0){
+                    textViewReceivedData.append(line + "\n");
+                }
+            }
+
+            binding.buttonUploadData.setEnabled(true);
+            filename = lastFile.getName();
+            etFilename.setText(filename);
+        });
+
         binding.btGetLastTime.setOnClickListener(view15 -> getWebsiteData());
 
         binding.btConnect.setEnabled(false);
@@ -263,6 +330,7 @@ public class MainFragment extends Fragment {
 
         });
 
+        getWebsiteData();
     }
 
     private void BluetoothButtonDisplay(MenuItem item) {
@@ -722,10 +790,14 @@ public class MainFragment extends Fragment {
 
             inProgress = true;
             pb.setVisibility(View.VISIBLE);
+            int i = 0;
             if (readMessagesList.size() - lastArraySize == 0) {
                 textViewReceivedData.setText("");
                 for (String rm : readMessagesList) {
-                    textViewReceivedData.append(rm);
+                    if(i%25 == 0) {
+                        textViewReceivedData.append(rm);
+                    }
+                    i++;
                 }
 
                 stopProgressBar();
@@ -789,6 +861,9 @@ public class MainFragment extends Fragment {
                     break;
                 case MessageConstants.RESPONSE_MESSAGE:
                     readMessagesList.add(msg.obj.toString() + '\n');
+                    break;
+                case MessageConstants.PROGRESS:
+                    pbText.setText(msg.obj.toString());
                     break;
                 case MessageConstants.MESSAGE_TOAST:
                     Toast.makeText(requireActivity().getApplicationContext(), msg.obj.toString(), Toast.LENGTH_SHORT).show();

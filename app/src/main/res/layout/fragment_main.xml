@@ -101,10 +101,12 @@
         android:layout_marginStart="8dp"
         android:layout_marginBottom="8dp"
         android:drawableLeft="@drawable/my_save"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
         android:text="Save"
         android:textColor="?attr/button_text_color"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toEndOf="@+id/button_load" />
 
     <Button
         android:id="@+id/bt_Send_data"
@@ -124,6 +126,8 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:drawableLeft="@drawable/my_new_file"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
         android:text="New File"
         android:textColor="?attr/button_text_color"
         app:layout_constraintStart_toEndOf="@+id/button_save"
@@ -210,5 +214,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/btGetLastTime"
         app:layout_constraintTop_toBottomOf="@+id/textView15" />
+
+    <Button
+        android:id="@+id/button_load"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="8dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:text="Load"
+        android:drawableLeft="@drawable/my_save"
+        android:textColor="?attr/button_text_color"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
