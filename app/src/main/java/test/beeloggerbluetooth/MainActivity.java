@@ -16,6 +16,7 @@ import test.beeloggerbluetooth.databinding.ActivityMainBinding;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager;
 
 import java.util.Objects;
 
@@ -38,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot()); //call before any findViewByIDs!
 
+        //Keeps the screen on in activity
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setSupportActionBar(binding.toolbar);
 
 
